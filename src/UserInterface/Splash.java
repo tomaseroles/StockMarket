@@ -166,18 +166,16 @@ public class Splash extends javax.swing.JFrame {
         String titulo = "Autenticación";
         try{
             if(txtUsername.getText().equals("") || txtPassword.getPassword().equals("")){
+                System.out.println("usr y pwd son nulos");
                 Consola.DialogBox("Debe introducir usuario y contraseña válidos",titulo);
             } else {
                 //comprobar usuario y contraseña y si es correcto, entrar: activar ventana principal, desactivar esta y pasar usuario como parametro
-                if (Player.usrNameDuplicate(txtUsername.getText())){
-                    Consola.DialogBox("Usuario duplicado",titulo);
+                if (Player.LogIn(txtUsername.getText(), String.valueOf(txtPassword.getPassword()))==1){
+                    Principal p = new Principal();
+                    p.setVisible(true);
+                    p.setUser(txtUsername.getText().toString());
                 } else {
-                    if (Player.LogIn(txtUsername.getText(), txtPassword.getPassword().toString())){
-                        Principal p = new Principal(txtUsername.getText());
-                        p.setVisible(true);
-                    } else {
-                        Consola.DialogBox("Usuario y/o contraseña incorrectos", titulo);
-                    }
+                    Consola.DialogBox("Usuario y/o contraseña incorrectos", titulo);
                 }
             }
         } catch(Exception ex){

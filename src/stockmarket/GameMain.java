@@ -7,10 +7,12 @@ import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GameMain {
+public class GameMain extends Thread {
     public static boolean verbose=true;
     public static boolean logfile=false;
     public static String playerName="";
+    private int msAPI = 15*60*1000;
+    private int msMin = 1*60*1000;
 
     public static void main(String[] args) throws Exception{
         WebLafManagers.initialize();
@@ -59,8 +61,8 @@ public class GameMain {
         */
         
     }
-    
         
+    
     public static void PruebasAPI(){
         try {
             // pruebas api

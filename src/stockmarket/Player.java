@@ -71,7 +71,7 @@ public class Player {
         System.out.print("Enter your password: ");
         password = sc.nextLine();
         
-        if (LogIn(username,password)){
+        if (LogIn(username,password)==1){
             Consola.Mensaje("Usuario validado. Sesion iniciada.");
             GameMain.playerName=username;
         } else {
@@ -79,7 +79,7 @@ public class Player {
         }
     }
     
-    public static boolean LogIn(String username, String password) throws Exception{
+    public static int LogIn(String username, String password) throws Exception{
         /*
         This method validates the user in the database.
         Parameters:
@@ -89,25 +89,26 @@ public class Player {
         - a boolean meaning true is the user exists in the database and false if not
         */
         String query;
-        boolean salida=false;
-        
+        //boolean salida=false;
+        System.out.println("Entrando en LogIn(con parametros)");
         query = "SELECT COUNT(*) AS Contador ";
         query+= "FROM player ";
         query+= "WHERE ((PlayerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
         
-        Consola.Mensaje(query);
-        ResultSet rs = dbAccess.exQuery(query);
-        while (rs.next()){
-            salida = (rs.getInt("Contador")==1);
-        }
+        dbAccess.rsConsole(query);
+        System.out.println(query);
+        System.out.println("Salida de exQueryCount: " + dbAccess.exQueryCount(query));
+        int salida = dbAccess.exQueryCount(query);
+        System.out.println("LogIn: Salida->" + salida);
+//        ResultSet rs  = dbAccess.exQuery(query);
+//        while (rs.next()){
+//            salida = (rs.getInt("Contador")==1);
+//        }
         return salida;
     }
         
     public static boolean isEmail(String email){
-        if (email.contains("@"))
-            return true;
-        else
-            return false;
+        return (email.contains("@"));
     }
     
     public static boolean usrNameDuplicate(String uname) throws Exception{

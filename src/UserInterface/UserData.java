@@ -19,6 +19,7 @@ package UserInterface;
 import com.alee.laf.WebLookAndFeel;
 import com.alee.managers.WebLafManagers;
 import stockmarket.Player;
+import stockmarket.dbAccess;
 
 /**
  *
@@ -128,12 +129,20 @@ public class UserData extends javax.swing.JFrame {
     private void cmdCrearMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdCrearMouseClicked
         // TODO add your handling code here:
         if (txtUsuario.getText().equals("") || txtemail.getText().equals("") || txtPassword.getPassword().equals("")){
-            
+            System.out.println("No se han introducido datos.");
         } else{
             try{
-            if(Player.usrNameDuplicate(txtUsuario.getText())){
-                
-            }
+                if(Player.usrNameDuplicate(txtUsuario.getText())){
+                    System.out.println("Nombre de usuario duplicado");
+                } else {
+                    String query = "INSERT INTO player(playerName, plEmail, plPassword) "
+                            +"VALUES('" + txtUsuario.getText() + "', "
+                            +       "'" + txtemail.getText() + "', "
+                            +       "md5('" + txtPassword.getPassword() + "')"
+                            +");";
+                    dbAccess.ExecuteNQ(query);
+                    dispose();
+                }
             } catch(Exception ex){
                 System.err.println("Error autenticación usuario.");
             }
@@ -144,13 +153,13 @@ public class UserData extends javax.swing.JFrame {
         // TODO add your handling code here:
         //setLocationRelativeTo(null);
         setDefaultLookAndFeelDecorated(true);
-        this.setLocationRelativeTo(this);
+        this.setLocationRelativeTo(null);
         setAlwaysOnTop(true);
     }//GEN-LAST:event_formWindowOpened
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
-       
+       dispose();
     }//GEN-LAST:event_formWindowClosing
 
     /**

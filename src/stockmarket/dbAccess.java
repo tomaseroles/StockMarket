@@ -97,4 +97,22 @@ public class dbAccess {
         state.close();
     }
     
+    public static void rsConsole(String sql){
+        try{
+            System.out.println("Resultado para \n" + sql);
+            ResultSet rs = exQuery(sql);
+            System.out.println();
+            for(int i=1;i<rs.getMetaData().getColumnCount();i++){
+                System.out.print(rs.getMetaData().getColumnName(i) + "|\t");
+            }
+            System.out.println();
+            int i=1;
+            while(rs.next()){
+                System.out.print(rs.getObject(i) + "|\t");
+            }
+        } catch (Exception ex){
+            System.out.println("Error en rsConsole: " + ex.getMessage());
+        }
+        
+    }
 }

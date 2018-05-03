@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Array;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -18,7 +19,7 @@ import org.json.JSONObject;
 public class Company {
     static String urlPrefix="https://api.iextrading.com/1.0/stock/";
         
-    //operative methods
+    //operative methods    
     public static String getCompanyData(String symbol){
         return ClienteREST.request(urlPrefix+symbol+"/company");
     }
