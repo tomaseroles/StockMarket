@@ -45,7 +45,7 @@
                   <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="CompanyLogo" min="-2" pref="162" max="-2" attributes="0"/>
+                          <Component id="Logotipo" min="-2" pref="162" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="CompanySymbol" alignment="0" pref="340" max="32767" attributes="0"/>
@@ -75,7 +75,7 @@
               <Group type="102" attributes="0">
                   <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="CompanyLogo" min="-2" pref="160" max="-2" attributes="0"/>
+                      <Component id="Logotipo" min="-2" pref="160" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Component id="CompanySymbol" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="3" pref="3" max="-2" attributes="0"/>
@@ -98,7 +98,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="CompanyLogo">
+        <Component class="javax.swing.JLabel" name="Logotipo">
           <Properties>
             <Property name="text" type="java.lang.String" value="jLabel2"/>
           </Properties>

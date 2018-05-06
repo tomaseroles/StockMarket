@@ -35,7 +35,7 @@ public class SymbolData extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        CompanyLogo = new javax.swing.JLabel();
+        Logotipo = new javax.swing.JLabel();
         CompanyCEO = new javax.swing.JLabel();
         CompanySymbol = new javax.swing.JLabel();
         CompanyName = new javax.swing.JLabel();
@@ -61,7 +61,7 @@ public class SymbolData extends javax.swing.JFrame {
             }
         });
 
-        CompanyLogo.setText("jLabel2");
+        Logotipo.setText("jLabel2");
 
         CompanyCEO.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         CompanyCEO.setText("text");
@@ -90,7 +90,7 @@ public class SymbolData extends javax.swing.JFrame {
                 .addGap(10, 10, 10)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(CompanyLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(Logotipo, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(CompanySymbol, javax.swing.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
@@ -112,7 +112,7 @@ public class SymbolData extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CompanyLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Logotipo, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(CompanySymbol)
                         .addGap(3, 3, 3)
@@ -148,8 +148,15 @@ public class SymbolData extends javax.swing.JFrame {
             URL url = new URL(Company.getCompanyLogo(symbol));
             System.out.println(Company.getCompanyLogo(symbol));
             imagen = ImageIO.read(url);
+            
+            String path = Company.getRawCompanyLogo("AAPL");
+                URL url1 = getClass().getResource(path);
+                ImageIcon icon = new ImageIcon(url1);
+                Logotipo.setIcon(icon);
         } catch(IOException e){
             e.printStackTrace();
+        } catch (Exception ex){
+            System.out.println("Excepcion");
         }
         
         JFrame marco = new JFrame();
@@ -157,7 +164,7 @@ public class SymbolData extends javax.swing.JFrame {
         JLabel label=new JLabel(new ImageIcon(imagen));
         marco.add(label);
         marco.setVisible(true);
-        CompanyLogo=label;
+        Logotipo=label;
         
     }//GEN-LAST:event_formWindowOpened
 
@@ -201,10 +208,10 @@ public class SymbolData extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JLabel CompanyCEO;
     public static javax.swing.JTextPane CompanyDescription;
-    public static javax.swing.JLabel CompanyLogo;
     public static javax.swing.JLabel CompanyName;
     public static javax.swing.JLabel CompanySymbol;
     public static javax.swing.JLabel CompanyWebsite;
+    public static javax.swing.JLabel Logotipo;
     public static javax.swing.JLabel MarketSectorIndustry;
     private javax.swing.JButton cmdClose;
     private javax.swing.JPanel jPanel1;

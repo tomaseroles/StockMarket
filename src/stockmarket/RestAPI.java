@@ -13,17 +13,17 @@ import java.util.logging.Logger;
 import org.json.*;
 
 public class RestAPI {
-    String urlStock="";
+    private static String urlStock="";
         
     //funciones que recuperan informacion de la api
-    public Company getCompanyData(String alias){
+    public static Company getCompanyData(String alias){
         Company mycom = new Company();
         String connStr = mycom.urlPrefix + alias + "/company";
         System.out.println(getJSON(connStr));
         return mycom;
     }
     
-    public String getJSON(String givenString){
+    public static String getJSON(String givenString){
         /*
         This function gets the complete JSON string given by the urlStock string
         */
@@ -38,11 +38,15 @@ public class RestAPI {
         return name;
     }
     
-    public void setURL(String url){urlStock=url;}
+    public static void setURL(String url){
+        urlStock=url;
+    }
     
-    public String getURL(){return urlStock;}
+    public static String getURL(){
+        return urlStock;
+    }
     
-    public String clienteREST(String cadena) throws Exception {
+    public static String clienteREST(String cadena) throws Exception {
         URL url = new URL(cadena);
         URLConnection urlConn = url.openConnection();
         InputStreamReader isr = new InputStreamReader(urlConn.getInputStream());

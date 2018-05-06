@@ -8,10 +8,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BoundedRangeModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
@@ -21,6 +23,8 @@ import javax.swing.tree.DefaultTreeModel;
 import stockmarket.dbAccess;
 import stockmarket.Company;
 import stockmarket.Consola;
+import stockmarket.GameMain;
+import stockmarket.Transaction;
 
 public class Principal extends javax.swing.JFrame {
     private DefaultMutableTreeNode rootNode;
@@ -43,6 +47,36 @@ public class Principal extends javax.swing.JFrame {
     
     //---------------------------------------------------------------------------
     // Funciones definidas para el proyecto
+
+    public static void UpdateData(){
+        /*
+        UpdateData
+        Actualiza el contenido de los controles que dependen de la base de datos y/o de la API
+        */
+        CalcularRanking();
+    }
+    public static String getCurrentPlayer(){
+        /*
+        getCurrentPlayer
+        Devuelve el nombre de usuario de jugador activo
+        */
+        return txtPlayer.getText();
+    }
+    
+    public static void ActualizarBarra(String nombre, int valor){
+        BoundedRangeModel modelo=null;
+
+        modelo.setValue(valor);
+        if(nombre.equals("API")){
+            timerAPI.setModel(modelo);
+        } else{
+            timerRanking.setModel(modelo);
+        }
+    }
+    
+    private boolean canTransact(){
+        return (Valores.getModel().getValueAt(Valores.getSelectedRow(),0)!=null && !txtPlayer.getText().equals("guest"));
+    }
     
     public void setUser(String username){
         txtPlayer.setText(username);
@@ -135,7 +169,16 @@ public class Principal extends javax.swing.JFrame {
             CalcularRanking();
     }
     
-    private void CalcularRanking(){
+    private void MostrarJugadas(String jugador){
+        String query = "SELECT Symbol, trDate AS Fecha, syPrice AS Precio, Multiplier AS Operacion "
+        +"FROM transaction "
+        +"WHERE PlayerName = '" + jugador + "';";
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo=dbAccess.ObtenerModelo(query);
+        playerTransactions.setModel(modelo);
+    }
+    private static void CalcularRanking(){
         String ranking = "SELECT * FROM playersranking;";
         DefaultTableModel modelo = new DefaultTableModel();
         Ranking.setModel(modelo);
@@ -188,10 +231,6 @@ public class Principal extends javax.swing.JFrame {
         /*
         PreparaArbol()
         Prepara la información a mostrar en el árbol
-        La información a mostrar está en un ArrayList que se obtiene en Company.getTreeFromDB()
-        Una vez se recupera el ArrayList, se trata para poder representarlo en forma de árbol
-        Para esta funcionalidad se ha adaptado código procedente de:
-        https://www.roseindia.net/java/example/java/swing/retrieving-jtree-structure-from.shtml
         */
         Consola.Mensaje("Preparando Arbol");
         treeStocks.removeAll();
@@ -235,6 +274,11 @@ public class Principal extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
+        BarraSuperior = new javax.swing.JToolBar();
+        jLabel8 = new javax.swing.JLabel();
+        timerRanking = new javax.swing.JProgressBar();
+        jLabel7 = new javax.swing.JLabel();
+        timerAPI = new javax.swing.JProgressBar();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         tabStatus = new javax.swing.JInternalFrame();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -251,12 +295,13 @@ public class Principal extends javax.swing.JFrame {
         jTextField2 = new javax.swing.JTextField();
         jTextField5 = new javax.swing.JTextField();
         jTextField6 = new javax.swing.JTextField();
-        jTextField7 = new javax.swing.JTextField();
         jTextField8 = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTable3 = new javax.swing.JTable();
         tabEquities = new javax.swing.JInternalFrame();
         jPanel2 = new javax.swing.JPanel();
         cmdRefresh = new javax.swing.JButton();
@@ -285,11 +330,8 @@ public class Principal extends javax.swing.JFrame {
         tabRanking = new javax.swing.JInternalFrame();
         jScrollPane5 = new javax.swing.JScrollPane();
         Ranking = new javax.swing.JTable();
-        BarraSuperior = new javax.swing.JToolBar();
-        jLabel8 = new javax.swing.JLabel();
-        timerRanking = new javax.swing.JProgressBar();
-        jLabel7 = new javax.swing.JLabel();
-        timerAPI = new javax.swing.JProgressBar();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        playerTransactions = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         fileConnect = new javax.swing.JMenu();
@@ -314,6 +356,16 @@ public class Principal extends javax.swing.JFrame {
                 formWindowOpened(evt);
             }
         });
+
+        BarraSuperior.setRollover(true);
+
+        jLabel8.setText("Recálculo del ranking: ");
+        BarraSuperior.add(jLabel8);
+        BarraSuperior.add(timerRanking);
+
+        jLabel7.setText("  Recálculo de la API: ");
+        BarraSuperior.add(jLabel7);
+        BarraSuperior.add(timerAPI);
 
         jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         jTabbedPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -358,8 +410,6 @@ public class Principal extends javax.swing.JFrame {
 
         jTextField6.setText("jTextField1");
 
-        jTextField7.setText("jTextField1");
-
         jTextField8.setText("jTextField1");
 
         jLabel5.setText("En acciones:");
@@ -374,10 +424,12 @@ public class Principal extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(txtPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(138, 138, 138))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -388,24 +440,29 @@ public class Principal extends javax.swing.JFrame {
                             .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jFormattedTextField10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jFormattedTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField8, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
-                                .addComponent(jTextField5))
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)))))
-                .addGap(6, 6, 6))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jFormattedTextField10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .addGap(107, 107, 107)
+                                        .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jFormattedTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 42, Short.MAX_VALUE)))
+                        .addGap(96, 96, 96))))
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jFormattedTextField1, jFormattedTextField10, jTextField1, jTextField6, jTextField7});
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jFormattedTextField1, jFormattedTextField10, jTextField1, jTextField6});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -430,31 +487,49 @@ public class Principal extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9)
+                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane7.setViewportView(jTable3);
 
         javax.swing.GroupLayout tabStatusLayout = new javax.swing.GroupLayout(tabStatus.getContentPane());
         tabStatus.getContentPane().setLayout(tabStatusLayout);
         tabStatusLayout.setHorizontalGroup(
             tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, tabStatusLayout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE))
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
         );
         tabStatusLayout.setVerticalGroup(
-            tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(tabStatusLayout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Estado del jugador", tabStatus);
@@ -464,8 +539,18 @@ public class Principal extends javax.swing.JFrame {
         cmdRefresh.setText("Refrescar");
 
         cmdComprar.setText("Comprar");
+        cmdComprar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdComprarMouseClicked(evt);
+            }
+        });
 
         cmdVender.setText("Vender");
+        cmdVender.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdVenderMouseClicked(evt);
+            }
+        });
 
         treeStocks.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -658,34 +743,42 @@ public class Principal extends javax.swing.JFrame {
             }
         ));
         Ranking.setShowHorizontalLines(false);
+        Ranking.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                RankingMouseClicked(evt);
+            }
+        });
         jScrollPane5.setViewportView(Ranking);
+
+        playerTransactions.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(playerTransactions);
 
         javax.swing.GroupLayout tabRankingLayout = new javax.swing.GroupLayout(tabRanking.getContentPane());
         tabRanking.getContentPane().setLayout(tabRankingLayout);
         tabRankingLayout.setHorizontalGroup(
             tabRankingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 902, Short.MAX_VALUE)
-            .addGroup(tabRankingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE))
+            .addGroup(tabRankingLayout.createSequentialGroup()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE))
         );
         tabRankingLayout.setVerticalGroup(
             tabRankingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
-            .addGroup(tabRankingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Ranking", tabRanking);
-
-        BarraSuperior.setRollover(true);
-
-        jLabel8.setText("Recálculo del ranking: ");
-        BarraSuperior.add(jLabel8);
-        BarraSuperior.add(timerRanking);
-
-        jLabel7.setText("  Recálculo de la API: ");
-        BarraSuperior.add(jLabel7);
-        BarraSuperior.add(timerAPI);
 
         jMenu1.setText("File");
         jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -741,6 +834,7 @@ public class Principal extends javax.swing.JFrame {
         */
         //pestaña transacciones
         //pestaña valores
+        playerTransactions.setVisible(false);
         try{
             //PreparaMercados();
             
@@ -820,6 +914,31 @@ public class Principal extends javax.swing.JFrame {
         //Conectar();
     }//GEN-LAST:event_jMenu1MouseClicked
 
+    private void cmdComprarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdComprarMouseClicked
+        // TODO add your handling code here:
+        if(canTransact()){
+            Transaction.newTransaction(String.valueOf(Valores.getModel().getValueAt(Valores.getSelectedRow(),0)), txtPlayer.getText() , (Integer)txtNumAcciones.getValue(), -1);
+        } else {
+            System.out.println("Error al intentar transaccion.");
+        }
+    }//GEN-LAST:event_cmdComprarMouseClicked
+
+    private void cmdVenderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdVenderMouseClicked
+        // TODO add your handling code here:
+        if(canTransact()){
+            Transaction.newTransaction(String.valueOf(Valores.getModel().getValueAt(Valores.getSelectedRow(),0)), txtPlayer.getText() , (Integer)txtNumAcciones.getValue(), 1);
+        } else {
+            System.out.println("Error al intentar transaccion.");
+        }        
+    }//GEN-LAST:event_cmdVenderMouseClicked
+
+    private void RankingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RankingMouseClicked
+        // TODO add your handling code here:
+        playerTransactions.setVisible(true);
+        MostrarJugadas(String.valueOf(Ranking.getModel().getValueAt(Ranking.getSelectedRow(),0)));
+
+    }//GEN-LAST:event_RankingMouseClicked
+
     /**
      * @param args the command line arguments
     */
@@ -853,6 +972,10 @@ public class Principal extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Principal().setVisible(true);
+                Thread accesoAPI = new GameMain.hAccesoAPI();
+                System.out.println("En marcha acceso API");
+                accesoAPI.start();
+
             }
         });
     }
@@ -862,7 +985,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JToolBar BarraSuperior;
     private javax.swing.JLabel Logotipo;
     private javax.swing.JPanel PanelDetalle;
-    private javax.swing.JTable Ranking;
+    public static javax.swing.JTable Ranking;
     private javax.swing.JTable Valores;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -902,28 +1025,31 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JTable jTable3;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
+    private javax.swing.JTable playerTransactions;
     private javax.swing.JInternalFrame tabEquities;
     private javax.swing.JInternalFrame tabRanking;
     private javax.swing.JInternalFrame tabStatus;
-    private javax.swing.JProgressBar timerAPI;
-    private javax.swing.JProgressBar timerRanking;
+    private static javax.swing.JProgressBar timerAPI;
+    private static javax.swing.JProgressBar timerRanking;
     private javax.swing.JTree treeStocks;
     private javax.swing.JSpinner txtNumAcciones;
-    private javax.swing.JLabel txtPlayer;
+    private static javax.swing.JLabel txtPlayer;
     // End of variables declaration//GEN-END:variables
 }

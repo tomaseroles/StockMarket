@@ -1,9 +1,33 @@
 package stockmarket;
 
+import UserInterface.Principal;
 import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class Player {
+    public static void UpdateEquities(){
+        String query = "SELECT Symbol, Sum(equities*multiplier) AS Neto "+
+                       "FROM transaction " +
+                       "GROUP BY Symbol " +
+                       "HAVING Neto>0 AND PlayerName ='" + Principal.getCurrentPlayer() +"';" ;
+        
+        try{
+            ResultSet rs = dbAccess.exQuery(query);
+            while(rs.next()){
+                double valorAct=Double.parseDouble(Company.getCompanyPrice(rs.getString("Symbol")));
+                String qUP = "UPDATE company "+
+                             "SET coValue = '" + valorAct + "' "+
+                             "WHERE Symbol = " + rs.getString("Symbol");
+                dbAccess.ExecuteNQ(qUP);
+            }
+            
+        } catch(Exception ex){
+            System.out.println("Fallo la consulta. "+ex.getMessage());
+        }
+    }
+    public static void UpdateRanking(){
+        
+    }
     public static void Register(String email, String name, String password) throws Exception{
         /*
         This method creates a new user using verified data such a non repeated username and a valid email.

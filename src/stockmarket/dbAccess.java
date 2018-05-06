@@ -3,6 +3,7 @@ package stockmarket;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 public class dbAccess {
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
@@ -16,6 +17,29 @@ public class dbAccess {
     private static Connection conn;
     private static Statement state;
     
+    
+    public static DefaultTableModel ObtenerModelo(String query){
+        DefaultTableModel modelo=new DefaultTableModel();
+        try{
+            ResultSet rs = dbAccess.exQuery(query);
+            for (int i=1;i<=rs.getMetaData().getColumnCount();i++){
+                modelo.addColumn(rs.getMetaData().getColumnName(i));
+            }
+            while(rs.next()){
+                Object[] fila = new Object[rs.getMetaData().getColumnCount()];
+                for(int i=0;i<rs.getMetaData().getColumnCount();i++){
+                    fila[i]=rs.getObject(i+1);
+                }
+                modelo.addRow(fila);
+            }
+        } catch(Exception ex){
+            System.out.println("Error al calcular modelo de \n"+query+"\n"+ex.getMessage());
+        }
+        
+        rsConsole(query);
+
+        return modelo;
+    }
     
     public static void Conectar(){
         /*
