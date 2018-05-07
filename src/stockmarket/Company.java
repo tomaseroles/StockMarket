@@ -24,6 +24,19 @@ public class Company {
         return ClienteREST.request(urlPrefix+symbol+"/company");
     }
     
+    public static String getCompanyStats(String symbol){
+        return ClienteREST.request(urlPrefix+symbol+"/stats");
+    }
+    
+    public static void ShowCompanyStats(String symbol) throws Exception{
+        String txt=getCompanyStats(symbol);
+        JSONObject obj = new JSONObject(txt);
+        
+        System.out.println("Simbolo       : " + symbol);
+        System.out.println("Capitalizacion: " + obj.getString("marketcap"));
+        System.out.println("Acciones      : " + obj.getString("sharesOutstandig"));
+    }
+    
     public static void ShowCompanyData(String symbol) throws Exception{
         String txt=getCompanyData(symbol);
         JSONObject obj = new JSONObject(txt);
@@ -192,17 +205,12 @@ public class Company {
                 }
             }
             tree.add(new DefaultMutableTreeNode("Not classified"));
-            String letras="ABCDEFHGIJKLMNOPQRSTUVWXYZ";
-            for(int i=0;i<letras.length();i++){
-                DefaultMutableTreeNode letra;
-                letra = new DefaultMutableTreeNode(letras.charAt(i));
-            }
         } catch(Exception ex){
             System.out.println("Error en getTreeFromDB. " + ex.getMessage());
         }
-        System.out.println("Ultima hoja: " + tree.getLastLeaf().toString());
+        //System.out.println("Ultima hoja: " + tree.getLastLeaf().toString());
         
-        System.out.println("Arbol: " + tree.toString());
+        //System.out.println("Arbol: " + tree.toString());
         return tree;
     }
     public static void FillDetailsToNull(String symbol) throws Exception{
@@ -228,12 +236,19 @@ public class Company {
         String txt = getCompanyData(symbol);
         JSONObject obj = new JSONObject(txt);
         
+        String txt2 = getCompanyStats(symbol);
+        JSONObject obj2 = new JSONObject(txt2);
+        
         String query = "UPDATE company "
                      + "SET coCEO = '"      + obj.getString("CEO") + "', "
                      +     "coWebsite = '"  + obj.getString("website") + "', "
                      +     "coMarket = '"   + obj.getString("exchange") + "', " 
                      +     "coSector = '"   + obj.getString("sector") + "', "
-                     +     "coIndustry = '" + obj.getString("industry") + "' "
+                     +     "coIndustry = '" + obj.getString("industry") + "', "
+                     +     "coDescription = '" + obj.getString("description") + "', "
+                     +     "Capitalization = " + obj2.getLong("marketcap") + ", "
+                     +     "sharesOutstanding = " + obj2.getLong("sharesOutstanding") + ", "
+                     +     "coValue = '" + obj2.getLong("marketcap")/obj2.getLong("sharesOutstanding") + "' " 
                      + "WHERE Symbol = '"   + symbol + "';";
         System.out.println(query);
         dbAccess.ExecuteNQ(query);
@@ -263,26 +278,26 @@ public class Company {
         return (rs.getInt("Contador")==1);
     }
     
-    public static ArrayList getTreeFromDB2(){
-        ArrayList list = new ArrayList();
-        try{
-            String sqlArbolMarket = "SELECT coMarket, coSector, coIndustry "
-                                    +"FROM company "
-                                    +"GROUP BY coMarket, coSector, coIndustry "
-                                    +"HAVING ((coMarket Is Not Null) AND (coSector Is Not Null)) AND (coIndustry Is Not Null);";
-            Consola.Mensaje(sqlArbolMarket);
-            list.add("Markets");
-            ResultSet rsMarket = dbAccess.exQuery(sqlArbolMarket);
-            while (rsMarket.next()){
-                Object value[] = {rsMarket.getString(1),rsMarket.getString(2),rsMarket.getString(3)};
-                list.add(value);
-            }
-            list.add("Not yet classified");
-        } catch(Exception ex){
-            System.err.println(ex.getMessage());
-        }
-        return list;
-    }            
+//    public static ArrayList getTreeFromDB2(){
+//        ArrayList list = new ArrayList();
+//        try{
+//            String sqlArbolMarket = "SELECT coMarket, coSector, coIndustry "
+//                                    +"FROM company "
+//                                    +"GROUP BY coMarket, coSector, coIndustry "
+//                                    +"HAVING ((coMarket Is Not Null) AND (coSector Is Not Null)) AND (coIndustry Is Not Null);";
+//            Consola.Mensaje(sqlArbolMarket);
+//            list.add("Markets");
+//            ResultSet rsMarket = dbAccess.exQuery(sqlArbolMarket);
+//            while (rsMarket.next()){
+//                Object value[] = {rsMarket.getString(1),rsMarket.getString(2),rsMarket.getString(3)};
+//                list.add(value);
+//            }
+//            list.add("Not yet classified");
+//        } catch(Exception ex){
+//            System.err.println(ex.getMessage());
+//        }
+//        return list;
+//    }            
             
     public static ArrayList getTreeSectors(String market){
         ArrayList list = new ArrayList();

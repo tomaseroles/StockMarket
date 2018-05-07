@@ -18,6 +18,7 @@ package UserInterface;
 
 import com.alee.laf.WebLookAndFeel;
 import stockmarket.Consola;
+import stockmarket.GameMain;
 import stockmarket.Player;
 
 /**
@@ -33,6 +34,22 @@ public class Splash extends javax.swing.JFrame {
         setUndecorated(true);
         initComponents();
     }
+    
+    /*
+    Metodos desarrollados para el programa
+    */
+    
+    public static void Entrada(String usuario){
+        /*
+        Entrada()
+        Cierra esta ventana, arranca el hilo de recálculo y cede el control a la ventana Principal
+        
+        Parámetros:
+        - usuario: es el nombredel usuario que se ha autenticado/es el guest
+        */
+        
+    }
+    // ---------------------------------------------------------------------------
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -49,7 +66,7 @@ public class Splash extends javax.swing.JFrame {
         txtUsername = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         txtPassword = new javax.swing.JPasswordField();
-        jLabel4 = new javax.swing.JLabel();
+        txtCloseWindow = new javax.swing.JLabel();
         cmdSignIn = new javax.swing.JButton();
         cmdGuestEnter = new javax.swing.JButton();
 
@@ -87,10 +104,10 @@ public class Splash extends javax.swing.JFrame {
 
         txtPassword.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
 
-        jLabel4.setText("X");
-        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+        txtCloseWindow.setText("X");
+        txtCloseWindow.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel4MouseClicked(evt);
+                txtCloseWindowMouseClicked(evt);
             }
         });
 
@@ -134,7 +151,7 @@ public class Splash extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(cmdSignup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(30, 30, 30)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(txtCloseWindow, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -154,7 +171,7 @@ public class Splash extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdGuestEnter)))
-            .addComponent(jLabel4)
+            .addComponent(txtCloseWindow)
         );
 
         pack();
@@ -171,9 +188,12 @@ public class Splash extends javax.swing.JFrame {
             } else {
                 //comprobar usuario y contraseña y si es correcto, entrar: activar ventana principal, desactivar esta y pasar usuario como parametro
                 if (Player.LogIn(txtUsername.getText(), String.valueOf(txtPassword.getPassword()))==1){
-                    Principal p = new Principal();
-                    p.setVisible(true);
-                    p.setUser(txtUsername.getText().toString());
+                    //Principal p = new Principal();
+                    Thread accesoAPI = new GameMain.hAccesoAPI();
+                    accesoAPI.start();
+
+                    //p.setVisible(true);
+                    //p.setUser(txtUsername.getText().toString());
                 } else {
                     Consola.DialogBox("Usuario y/o contraseña incorrectos", titulo);
                 }
@@ -194,10 +214,10 @@ public class Splash extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }//GEN-LAST:event_formWindowOpened
 
-    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+    private void txtCloseWindowMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtCloseWindowMouseClicked
         // TODO add your handling code here:
         System.exit(0);
-    }//GEN-LAST:event_jLabel4MouseClicked
+    }//GEN-LAST:event_txtCloseWindowMouseClicked
 
     private void cmdGuestEnterMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdGuestEnterMouseClicked
         // TODO add your handling code here:
@@ -250,7 +270,7 @@ public class Splash extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel txtCloseWindow;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables

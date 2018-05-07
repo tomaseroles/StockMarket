@@ -19,6 +19,15 @@ public class dbAccess {
     
     
     public static DefaultTableModel ObtenerModelo(String query){
+        /*
+        ObtenerModelo
+        Obtiene un modelo de datos a partir de una consulta SQL dada
+        Parametros:
+        - query: es una expresión SQL válida
+        Salida:
+        - DefaultTableModel: es un modelo de acceso a datos con los nombres de columna y con los datos
+          listo para asociarlo a cualquier JTable
+        */
         DefaultTableModel modelo=new DefaultTableModel();
         try{
             ResultSet rs = dbAccess.exQuery(query);
@@ -37,7 +46,6 @@ public class dbAccess {
         }
         
         rsConsole(query);
-
         return modelo;
     }
     
@@ -45,7 +53,7 @@ public class dbAccess {
         /*
         This method connects to the db server
         */
-        Consola.Mensaje("Inicializando el objeto");
+        //Consola.Mensaje("Inicializando el objeto");
         try {
             Class.forName("com.mysql.jdbc.Connection");
             conn = DriverManager.getConnection(localDB_URL,USER,PASS);
@@ -64,7 +72,7 @@ public class dbAccess {
         This method executes a SQL statement against the db server, that does not have to return values
         It is used to INSERT, UPDATE and DELETE statements
         */
-        Consola.Mensaje("Entrada en función ejecutar");
+        //Consola.Mensaje("Entrada en función ejecutar");
         Conectar();
         state.execute(query);
     }
@@ -75,13 +83,13 @@ public class dbAccess {
         */
         ResultSet rs=null;
         //conn.close();
-        Consola.Mensaje("Dentro de exQuery. Conectando...");
+        //Consola.Mensaje("Dentro de exQuery. Conectando...");
         Conectar();
-        Consola.Mensaje("Conectado. Creando Statement");
+        //Consola.Mensaje("Conectado. Creando Statement");
         state = (Statement) conn.createStatement();
-        Consola.Mensaje("Statement creado. Ejecutando consulta...");
+        //Consola.Mensaje("Statement creado. Ejecutando consulta...");
         rs = state.executeQuery(sql);
-        Consola.Mensaje("Consulta ejecutada. Devolviendo resultado. Fila: " + rs.getRow());
+        //Consola.Mensaje("Consulta ejecutada. Devolviendo resultado. Fila: " + rs.getRow());
         return rs;
     }
     
@@ -95,19 +103,15 @@ public class dbAccess {
     public static int exQueryCount(String sql) throws Exception{
         ResultSet rs=null;
         
-        Consola.Mensaje("Dentro de exQueryCount. Conectando.");
+        //Consola.Mensaje("Dentro de exQueryCount. Conectando.");
         Conectar();
-        Consola.Mensaje("Creando Statement.");
+        //Consola.Mensaje("Creando Statement.");
         state = (Statement) conn.createStatement();
-        Consola.Mensaje("Ejecutando query: " + sql);
+        //Consola.Mensaje("Ejecutando query: " + sql);
         try{
             rs=state.executeQuery(sql);
         } catch(SQLException e){
             System.err.println("Error en ejecución de consulta: " + e.getSQLState() + "\n"+e.getMessage());
-            Consola.Mensaje(e.getMessage());
-        }
-        try{
-            Consola.Mensaje("Devolviendo resultado: " + rs.getInt(1));        
         } catch(NullPointerException e){
             System.err.println("Error Null Pointer Exception. " + e.getMessage());
         }

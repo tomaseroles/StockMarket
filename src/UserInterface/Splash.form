@@ -49,7 +49,7 @@
                   <Component id="cmdSignup" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
-              <Component id="jLabel4" min="-2" pref="10" max="-2" attributes="0"/>
+              <Component id="txtCloseWindow" min="-2" pref="10" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -73,7 +73,7 @@
                   <Component id="cmdGuestEnter" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
-          <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+          <Component id="txtCloseWindow" min="-2" max="-2" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -134,12 +134,12 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
+    <Component class="javax.swing.JLabel" name="txtCloseWindow">
       <Properties>
         <Property name="text" type="java.lang.String" value="X"/>
       </Properties>
       <Events>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jLabel4MouseClicked"/>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="txtCloseWindowMouseClicked"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="cmdSignIn">
