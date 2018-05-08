@@ -11,7 +11,7 @@ public class GameMain {
     public static boolean online=true;
     public static boolean logfile=false;
     public static String playerName="";
-    private static int msMin = 10*1000;
+    private static int msMin = 60*1000;         //60.000ms = 1 minuto
 
     public static class hPrincipal extends Thread{
         Splash splash = new Splash();
@@ -27,13 +27,15 @@ public class GameMain {
     }
     
     public static class hAccesoAPI extends Thread{
-        Principal vPrincipal = new Principal();
+        //Principal vPrincipal = new Principal();
+        
         @Override
         public void run(){
+            //vPrincipal.setVisible(true);
             System.out.println("Thread API en marcha");
             int ciclos=0;
-            System.out.println("Principal visible: " + vPrincipal.isVisible());
-            System.out.println("Principal enabled: " + vPrincipal.isEnabled());
+            //System.out.println("Principal visible: " + vPrincipal.isVisible());
+            //System.out.println("Principal enabled: " + vPrincipal.isEnabled());
             while (true){
                 try {
                     System.out.println("Hilo hAccesoAPI dormido");
@@ -44,10 +46,12 @@ public class GameMain {
                     if (ciclos==15){
                         //actualizar precios de acciones para usuario des de la api (cada 15 minutos)
                         Player.UpdateEquities();
+                        Principal.UpdateAPI();
+                        System.out.println("UpdateEquities");
                         ciclos=0;
                     }
                     //actualizar ranking (cada minuto)
-                    System.out.println("Ciclo " + ciclos);
+                    System.out.println("Ciclo " + ciclos + ". UpdateRanking. UpdateData");
                     Player.UpdateRanking();
                     Principal.UpdateData();
                 } catch (InterruptedException ex) {

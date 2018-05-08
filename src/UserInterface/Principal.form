@@ -137,6 +137,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JProgressBar" name="timerRanking">
+          <Properties>
+            <Property name="maximum" type="int" value="60"/>
+          </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="10"/>
           </AuxValues>
@@ -147,6 +150,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JProgressBar" name="timerAPI">
+          <Properties>
+            <Property name="maximum" type="int" value="15"/>
+          </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="10"/>
           </AuxValues>

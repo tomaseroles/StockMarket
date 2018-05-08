@@ -95,7 +95,7 @@ public class Player {
         System.out.print("Enter your password: ");
         password = sc.nextLine();
         
-        if (LogIn(username,password)==1){
+        if (LogIn(username,password)){
             Consola.Mensaje("Usuario validado. Sesion iniciada.");
             GameMain.playerName=username;
         } else {
@@ -103,32 +103,19 @@ public class Player {
         }
     }
     
-    public static int LogIn(String username, String password) throws Exception{
+    public static boolean LogIn(String username, String password) throws Exception{
         /*
-        This method validates the user in the database.
-        Parameters:
-        - username (String). The username in the database
-        - password (String). The stored password
-        Returns
-        - a boolean meaning true is the user exists in the database and false if not
+        Este metodo valida si el usuario/contraseña existen en la BBDD.
+        Parametros:
+        - username (String). Nombre de usuario dado
+        - password (String). Contraseña introducida
+        Devuelve
+        - boolean: verdadero si es correcto, falso si no es correcto
         */
-        String query;
-        //boolean salida=false;
-        System.out.println("Entrando en LogIn(con parametros)");
-        query = "SELECT COUNT(*) AS Contador ";
-        query+= "FROM player ";
-        query+= "WHERE ((PlayerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
-        
-        dbAccess.rsConsole(query);
-        System.out.println(query);
-        System.out.println("Salida de exQueryCount: " + dbAccess.exQueryCount(query));
-        int salida = dbAccess.exQueryCount(query);
-        System.out.println("LogIn: Salida->" + salida);
-//        ResultSet rs  = dbAccess.exQuery(query);
-//        while (rs.next()){
-//            salida = (rs.getInt("Contador")==1);
-//        }
-        return salida;
+        String query = "SELECT COUNT(*) AS Contador " +
+                       "FROM player " +
+                       "WHERE ((PlayerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
+        return (dbAccess.exQueryCount(query)==1);
     }
         
     public static boolean isEmail(String email){

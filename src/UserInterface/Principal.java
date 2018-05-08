@@ -48,12 +48,18 @@ public class Principal extends javax.swing.JFrame {
     //---------------------------------------------------------------------------
     // Funciones definidas para el proyecto
 
+    public static void UpdateAPI(){
+        timerAPI.setValue(timerAPI.getValue()+1);
+    }
+    
     public static void UpdateData(){
         /*
         UpdateData
         Actualiza el contenido de los controles que dependen de la base de datos y/o de la API
         */
+        timerRanking.setValue(timerRanking.getValue()+1);
         CalcularRanking();
+        
     }
     public static String getCurrentPlayer(){
         /*
@@ -89,8 +95,6 @@ public class Principal extends javax.swing.JFrame {
         Primera version: todos los valores
         */
         try {
-            // TODO add your handling code here:
-            //System.out.println("Arbol. Se ha clicado en " + tree.getLastSelectedPathComponent().toString());
             String query="";
             String nodo = treeStocks.getLastSelectedPathComponent().toString();
             System.out.println("Nodo: " + nodo);
@@ -209,19 +213,18 @@ public class Principal extends javax.swing.JFrame {
             try{
                 System.out.println(query);
                 
-                
                 ResultSet rs = dbAccess.exQuery(query);
                 System.out.println("Columnas: " + rs.getMetaData().getColumnCount());
                 for(int i=1;i<=rs.getMetaData().getColumnCount();i++)
                     System.out.println(rs.getString(i) + " / ");
                 
                 //detalleCEO.setText(rs.getString("coCEO"));
-                detalleCEO.setText(Valores.getModel().getValueAt(Valores.getSelectedRow(),3).toString());
+                //detalleCEO.setText(Valores.getModel().getValueAt(Valores.getSelectedRow(),3).toString());
                 
-                detalleDetalle.setText(rs.getString("Description"));
-                detalleEmpresa.setText(rs.getString("coName"));
-                detalleSimbolo.setText(simbolo);
-                detalleWeb.setText(rs.getString("coWeb"));
+                //detalleDetalle.setText(rs.getString("Description"));
+                //detalleEmpresa.setText(rs.getString("coName"));
+                //detalleSimbolo.setText(simbolo);
+                //detalleWeb.setText(rs.getString("coWeb"));
                 String path = Company.getRawCompanyLogo(simbolo);
                 URL url = getClass().getResource(path);
                 ImageIcon icon = new ImageIcon(url);
@@ -362,10 +365,14 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel8.setText("Recálculo del ranking: ");
         BarraSuperior.add(jLabel8);
+
+        timerRanking.setMaximum(60);
         BarraSuperior.add(timerRanking);
 
         jLabel7.setText("  Recálculo de la API: ");
         BarraSuperior.add(jLabel7);
+
+        timerAPI.setMaximum(15);
         BarraSuperior.add(timerAPI);
 
         jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -897,6 +904,7 @@ public class Principal extends javax.swing.JFrame {
 
     private void ValoresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ValoresMouseClicked
         // TODO add your handling code here:
+        System.out.println("Se ha seleccionado Valores: " + Valores.getValueAt(Valores.getSelectedRow() , 0).toString());
         MostrarDetalleSimbolo(Valores.getValueAt(Valores.getSelectedRow() , 0).toString());
     }//GEN-LAST:event_ValoresMouseClicked
 
@@ -967,10 +975,6 @@ public class Principal extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Principal().setVisible(true);
-                //Thread accesoAPI = new GameMain.hAccesoAPI();
-                //System.out.println("En marcha acceso API");
-                //accesoAPI.start();
-
             }
         });
     }

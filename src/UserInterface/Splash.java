@@ -35,22 +35,28 @@ public class Splash extends javax.swing.JFrame {
         initComponents();
     }
     
-    /*
-    Metodos desarrollados para el programa
-    */
-    
-    public static void Entrada(String usuario){
-        /*
-        Entrada()
-        Cierra esta ventana, arranca el hilo de recálculo y cede el control a la ventana Principal
-        
-        Parámetros:
-        - usuario: es el nombredel usuario que se ha autenticado/es el guest
-        */
-        
-    }
-    // ---------------------------------------------------------------------------
+    /* ---------------------------------------------------------------------------
+    Funciones desarrolladas
+    --------------------------------------------------------------------------  */ 
 
+    private void Login(String usuario, String password) throws Exception{
+        String titulo = "Autenticación";
+        try{
+            if (Player.LogIn(usuario, password)){
+                GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
+                hAPI.start();
+                Principal p = new Principal();
+                setVisible(false);
+                p.setVisible(true);
+                p.setUser(usuario);
+            } else {
+                Consola.DialogBox("Usuario y/o contraseña incorrectos", titulo);
+            }
+        } catch(Exception ex){
+            System.err.println("Error en autenticación de usuario" + ex.getMessage());
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -179,27 +185,10 @@ public class Splash extends javax.swing.JFrame {
 
     private void cmdSignupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdSignupMouseClicked
         // TODO add your handling code here:
-       
-        String titulo = "Autenticación";
         try{
-            if(txtUsername.getText().equals("") || txtPassword.getPassword().equals("")){
-                System.out.println("usr y pwd son nulos");
-                Consola.DialogBox("Debe introducir usuario y contraseña válidos",titulo);
-            } else {
-                //comprobar usuario y contraseña y si es correcto, entrar: activar ventana principal, desactivar esta y pasar usuario como parametro
-                if (Player.LogIn(txtUsername.getText(), String.valueOf(txtPassword.getPassword()))==1){
-                    //Principal p = new Principal();
-                    Thread accesoAPI = new GameMain.hAccesoAPI();
-                    accesoAPI.start();
-
-                    //p.setVisible(true);
-                    //p.setUser(txtUsername.getText().toString());
-                } else {
-                    Consola.DialogBox("Usuario y/o contraseña incorrectos", titulo);
-                }
-            }
-        } catch(Exception ex){
-            System.err.println("Error en autenticación de usuario" + ex.getMessage());
+           Login(txtUsername.getText(),txtPassword.getPassword().toString());
+        } catch (Exception ex){
+            System.err.println("Error de autenticación.\n"+ex.getMessage());
         }
     }//GEN-LAST:event_cmdSignupMouseClicked
 
@@ -221,10 +210,12 @@ public class Splash extends javax.swing.JFrame {
 
     private void cmdGuestEnterMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdGuestEnterMouseClicked
         // TODO add your handling code here:
-        Principal p = new Principal();
-        setVisible(false);
-        p.setVisible(true);
-        p.setUser("guest");
+        try{
+            Login("guest","");
+        } catch (Exception ex){
+            System.err.println("Error en entrada de guest.\n"+ex.getMessage());
+        }
+
     }//GEN-LAST:event_cmdGuestEnterMouseClicked
 
     /**

@@ -239,16 +239,22 @@ public class Company {
         String txt2 = getCompanyStats(symbol);
         JSONObject obj2 = new JSONObject(txt2);
         
+        String descripcion = obj.getString("description");
+        System.out.println(descripcion);
+        if (descripcion.contains("\'")){
+            descripcion = descripcion.replaceAll("\'", "");
+        }
+        System.out.println(descripcion);
         String query = "UPDATE company "
                      + "SET coCEO = '"      + obj.getString("CEO") + "', "
                      +     "coWebsite = '"  + obj.getString("website") + "', "
                      +     "coMarket = '"   + obj.getString("exchange") + "', " 
                      +     "coSector = '"   + obj.getString("sector") + "', "
                      +     "coIndustry = '" + obj.getString("industry") + "', "
-                     +     "coDescription = '" + obj.getString("description") + "', "
+                     +     "coDescription = '" + descripcion + "', "
                      +     "Capitalization = " + obj2.getLong("marketcap") + ", "
                      +     "sharesOutstanding = " + obj2.getLong("sharesOutstanding") + ", "
-                     +     "coValue = '" + obj2.getLong("marketcap")/obj2.getLong("sharesOutstanding") + "' " 
+                     +     "coValue = '" + (double)obj2.getLong("marketcap")/(double)obj2.getLong("sharesOutstanding") + "' " 
                      + "WHERE Symbol = '"   + symbol + "';";
         System.out.println(query);
         dbAccess.ExecuteNQ(query);
