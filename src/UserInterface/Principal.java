@@ -28,6 +28,48 @@ public class Principal extends javax.swing.JFrame {
     
     //---------------------------------------------------------------------------
     // Funciones definidas para el proyecto
+    private void ConfiguraInicio(){
+        try{
+            //Configuracion general de controles de la ventana
+            setLocationRelativeTo(null);
+            timerRanking.setMinimum(0);                 //sets the minimum value for timerRanking
+            timerRanking.setMaximum(6);                //sets the maximum value for timerRanking
+            timerAPI.setMinimum(0);                     //sets the minimum value for timerAPI
+            timerAPI.setMaximum(15);                    //sets the maximum value for timerAPI
+            //pestaña estado -------------------------------------------------------------------
+            //calcular fecha de alta
+            String queryFA = "SELECT FechaAlta, TiempoJuego "+
+                            "FROM player "+
+                            "WHERE playerName = '" + txtPlayer.getText() + "'";
+            ResultSet rs = dbAccess.exQuery(queryFA);
+            
+            txtFechaAlta.setText(rs.getDate("FechaAlta").toString());
+            txtTiempoJuego.setText((Consola.int2strTime(rs.getInt("TiempoJuego"))));
+            
+            //pestaña valores ------------------------------------------------------------------
+            PanelDetalle.setVisible(false);             //oculta PanelDetalle (jPanel de detalle de empresa)
+            //pestaña Ranking ------------------------------------------------------------------
+            playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
+        } catch (Exception ex){
+            System.err.println("Error en ConfiguracionInicio.\n"+ex.getMessage());
+        }
+    }
+
+    private void ConfiguraSesion(){
+        try{
+            //Pestaña Estado
+            MostrarJugadas(txtPlayer.getName());
+            AccionesJugador();
+            OperacionesJugador();
+            //Pestaña Valores
+            PreparaArbol();
+            //Pestaña Ranking
+            CalcularRanking();
+        } catch (Exception ex){
+            System.err.println("Error en configuracion de sesion.\n"+ex.getMessage());
+        }
+    }
+
     public static void UpdateTimerAPI(){
         /*
         Actualiza el valor de la barra de progreso API o la pone a cero. 
@@ -67,6 +109,14 @@ public class Principal extends javax.swing.JFrame {
     }
     
     private boolean canTransact(){
+        /*
+        canTransact
+        Devuelve verdadero en caso de que se pueda realizar una transaccion
+        Para realizarse una transaccion se tiene que cumplir que:
+        - se haya seleccionado una empresa de la tabla Valores
+        Sólo funciona cuando el usuario es un jugador, es decir, ni es admin ni es guest
+        porque los botones de transacciones están deshabilitados
+        */
         return (Valores.getModel().getValueAt(Valores.getSelectedRow(),0)!=null && !txtPlayer.getText().equals("guest"));
     }
     
@@ -115,6 +165,10 @@ public class Principal extends javax.swing.JFrame {
     }
     
     private void MostrarJugadas(String jugador){
+        /*
+        MostrarJugadas
+        Lee de la base de datos, y muestra en la tabla playerTransactions las transacciones del jugador
+        */
         String query = "SELECT Simbolo, Empresa, Fecha, Compra, Venta "+
                         "FROM operacionesjugador "+
                         "WHERE PlayerName = '" + jugador + "'"+
@@ -122,7 +176,12 @@ public class Principal extends javax.swing.JFrame {
         DefaultTableModel modelo = dbAccess.ObtenerModelo(query);
         playerTransactions.setModel(modelo);
     }
+    
     private static void AccionesJugador(){
+        /*
+        AccionesJugador
+        
+        */
         String query = "SELECT Simbolo, Empresa, Acciones "+
                         "FROM AccionesJugador "+
                         "WHERE PlayerName = '" + txtPlayer.getText() + "';";
@@ -742,27 +801,8 @@ public class Principal extends javax.swing.JFrame {
         esta lista viene de la lista de transacciones, y se 
         */
         try{
-            //Configuracion general de controles de la ventana
-            setLocationRelativeTo(null);
-            timerRanking.setMinimum(0);                 //sets the minimum value for timerRanking
-            timerRanking.setMaximum(6);                //sets the maximum value for timerRanking
-            timerAPI.setMinimum(0);                     //sets the minimum value for timerAPI
-            timerAPI.setMaximum(15);                    //sets the maximum value for timerAPI
-            //pestaña estado -------------------------------------------------------------------
-            //calcular fecha de alta
-            String queryFA = "SELECT FechaAlta, TiempoJuego "+
-                            "FROM player "+
-                            "WHERE playerName = '" + txtPlayer.getText() + "'";
-            ResultSet rs = dbAccess.exQuery(queryFA);
-            
-            txtFechaAlta.setText(rs.getDate("FechaAlta").toString());
-            txtTiempoJuego.setText((Consola.int2strTime(rs.getInt("TiempoJuego"))));
-            
-            //pestaña valores ------------------------------------------------------------------
-            PreparaArbol();
-            PanelDetalle.setVisible(false);             //oculta PanelDetalle (jPanel de detalle de empresa)
-            //pestaña Ranking ------------------------------------------------------------------
-            playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
+            ConfiguraInicio();
+            ConfiguraSesion();
         } catch(Exception ex){
             System.err.println("Error en inicializacion de pantalla.\n"+ex.getMessage());
         }
