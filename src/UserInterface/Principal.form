@@ -217,8 +217,8 @@
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                       <Component id="jLabel1" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jLabel4" alignment="0" pref="119" max="32767" attributes="0"/>
+                                      <Component id="lblFechaAlta" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="lblTiempoJuego" alignment="0" pref="119" max="32767" attributes="0"/>
                                       <Component id="jLabel2" alignment="0" max="32767" attributes="0"/>
                                       <Component id="jLabel9" max="32767" attributes="0"/>
                                       <Component id="jLabel10" max="32767" attributes="0"/>
@@ -271,12 +271,12 @@
                           <Component id="txtPlayer" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblFechaAlta" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="txtFechaAlta" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblTiempoJuego" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="txtTiempoJuego" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -308,7 +308,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel3">
+                <Component class="javax.swing.JLabel" name="lblFechaAlta">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Fecha de alta:"/>
                   </Properties>
@@ -321,7 +321,7 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel4">
+                <Component class="javax.swing.JLabel" name="lblTiempoJuego">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Tiempo de juego:"/>
                   </Properties>

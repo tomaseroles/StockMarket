@@ -28,13 +28,11 @@ public class Principal extends javax.swing.JFrame {
     
     //---------------------------------------------------------------------------
     // Funciones definidas para el proyecto
-
     public static void UpdateTimerAPI(){
         /*
         Actualiza el valor de la barra de progreso API o la pone a cero. 
         Al llegar al final actualiza los valores de las acciones del jugador
         */
-        
         if(timerAPI.getValue()==timerAPI.getMaximum()){
             timerAPI.setValue(0);
             timerAPI.setString(""+timerAPI.getValue()+"/"+timerAPI.getMaximum());
@@ -147,7 +145,7 @@ public class Principal extends javax.swing.JFrame {
     }
         
     public void MostrarDetalleSimbolo(String simbolo){
-        if(treeStocks.getLastSelectedPathComponent().toString()!="Not classified"){
+        if(treeStocks.getLastSelectedPathComponent().toString().equals("Not classified")){
             PanelDetalle.setVisible(true);
             String query = "SELECT coName, coCEO, coWebsite, coDescription "
                     +"FROM company "
@@ -193,7 +191,6 @@ public class Principal extends javax.swing.JFrame {
             System.err.println(ex.getMessage());
         }
     }
-        
     //---------------------------------------------------------------------------
 
     /**
@@ -222,9 +219,9 @@ public class Principal extends javax.swing.JFrame {
         jScrollPane6 = new javax.swing.JScrollPane();
         Operaciones = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
+        lblFechaAlta = new javax.swing.JLabel();
         txtFechaAlta = new javax.swing.JFormattedTextField();
-        jLabel4 = new javax.swing.JLabel();
+        lblTiempoJuego = new javax.swing.JLabel();
         txtPlayer = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -324,12 +321,12 @@ public class Principal extends javax.swing.JFrame {
         ));
         jScrollPane6.setViewportView(Operaciones);
 
-        jLabel3.setText("Fecha de alta:");
+        lblFechaAlta.setText("Fecha de alta:");
 
         txtFechaAlta.setEditable(false);
         txtFechaAlta.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
 
-        jLabel4.setText("Tiempo de juego:");
+        lblTiempoJuego.setText("Tiempo de juego:");
 
         txtPlayer.setFont(new java.awt.Font("Dialog", 3, 24)); // NOI18N
         txtPlayer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -370,8 +367,8 @@ public class Principal extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+                            .addComponent(lblFechaAlta)
+                            .addComponent(lblTiempoJuego, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -412,11 +409,11 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(txtPlayer)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                    .addComponent(lblFechaAlta)
                     .addComponent(txtFechaAlta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
+                    .addComponent(lblTiempoJuego)
                     .addComponent(txtTiempoJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -847,7 +844,6 @@ public class Principal extends javax.swing.JFrame {
         // TODO add your handling code here:
         playerTransactions.setVisible(true);
         MostrarJugadas(String.valueOf(Ranking.getModel().getValueAt(Ranking.getSelectedRow(),0)));
-
     }//GEN-LAST:event_RankingMouseClicked
 
     /**
@@ -919,8 +915,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel22;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -941,6 +935,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField8;
+    private javax.swing.JLabel lblFechaAlta;
+    private javax.swing.JLabel lblTiempoJuego;
     private javax.swing.JTable playerTransactions;
     private javax.swing.JInternalFrame tabEquities;
     private javax.swing.JInternalFrame tabRanking;
