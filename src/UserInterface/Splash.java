@@ -43,14 +43,15 @@ public class Splash extends javax.swing.JFrame {
         String titulo = "Autenticación";
         System.out.println("En Login");
         try{
-            System.out.println("Still login");
+            System.out.println("Still login: " + password);
+            
             if (Player.LogIn(usuario, password)){
                 GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
                 hAPI.start();
                 Principal p = new Principal();
-                setVisible(false);
                 p.setVisible(true);
                 p.setUser(usuario);
+                setVisible(false);
             } else {
                 System.out.println("Usuario y/o contraseña incorrectos");
             }
@@ -189,8 +190,8 @@ public class Splash extends javax.swing.JFrame {
         // TODO add your handling code here:
         try{
             System.out.println("Usuario:    " + txtUsername.getText());
-            System.out.println("Contraseña: " + txtPassword.getPassword().toString());
-            Login(txtUsername.getText(),txtPassword.getPassword().toString());
+            System.out.println("Contraseña: " + String.copyValueOf(txtPassword.getPassword())) ;
+            Login(txtUsername.getText(),String.copyValueOf(txtPassword.getPassword()));
         } catch (Exception ex){
             System.err.println("Error de autenticación.\n"+ex.getMessage());
         }

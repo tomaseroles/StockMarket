@@ -193,44 +193,6 @@ public class Principal extends javax.swing.JFrame {
             System.err.println(ex.getMessage());
         }
     }
-
-    public static void UpdateWindow(){
-        /*
-        UpdateWindow()
-        Puesta a punto de los controles genericos de la ventana.
-        Se utiliza cada vez que hay cambios en la ventana para los controles. Casos:
-        - Transacciones realizadas
-        - Ciclos de thread = 10 (10 ciclos de 6 segundos/ciclo=1 miuto)
-        - Ciclos de API = 150 (
-        */
-        //pestaña Estado
-        //falta datos generales del jugador
-        AccionesJugador();
-        OperacionesJugador();
-        //pestaña valores
-        //pestaña ranking
-    
-    
-    
-//                String queryCompras = "SELECT SUM(equities), SUM(equities*syPrice) "+
-//                                  "FROM transaction "+
-//                                  "WHERE ("+
-//                                  "(PlayerName= '" + txtPlayer.getText() + "') AND "+
-//                                  "(Multiplier=1)"+
-//                                ");";
-//            txtAccionesCompradas.setText(dbAccess.exQuery(queryCompras).getString(1));
-//            txtComprasDinero.setText(dbAccess.exQuery(queryCompras).getString(2));
-//            String queryVentas = "SELECT SUM(equities), SUM(equities*syPrice) "+
-//                                  "FROM transaction "+
-//                                  "WHERE ("+
-//                                  "(PlayerName= '" + txtPlayer.getText() + "') AND "+
-//                                  "(Multiplier=-1)"+
-//                                ");";
-
-    
-    
-    
-    }
         
     //---------------------------------------------------------------------------
 
@@ -263,7 +225,6 @@ public class Principal extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         txtFechaAlta = new javax.swing.JFormattedTextField();
         jLabel4 = new javax.swing.JLabel();
-        jFormattedTextField10 = new javax.swing.JFormattedTextField();
         txtPlayer = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -276,6 +237,7 @@ public class Principal extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        txtTiempoJuego = new javax.swing.JTextField();
         jScrollPane7 = new javax.swing.JScrollPane();
         Acciones = new javax.swing.JTable();
         tabEquities = new javax.swing.JInternalFrame();
@@ -364,11 +326,10 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel3.setText("Fecha de alta:");
 
+        txtFechaAlta.setEditable(false);
         txtFechaAlta.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
 
         jLabel4.setText("Tiempo de juego:");
-
-        jFormattedTextField10.setText("jFormattedTextField10");
 
         txtPlayer.setFont(new java.awt.Font("Dialog", 3, 24)); // NOI18N
         txtPlayer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -378,15 +339,15 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel2.setText("Comprado:");
 
-        txtAccionesCompradas.setText("jTextField1");
+        txtAccionesCompradas.setEditable(false);
 
-        txtComprasDinero.setText("jTextField2");
+        txtComprasDinero.setEditable(false);
 
-        jTextField5.setText("jTextField2");
+        jTextField5.setEditable(false);
 
-        jTextField6.setText("jTextField1");
+        jTextField6.setEditable(false);
 
-        jTextField8.setText("jTextField1");
+        jTextField8.setEditable(false);
 
         jLabel5.setText("En acciones:");
 
@@ -395,6 +356,8 @@ public class Principal extends javax.swing.JFrame {
         jLabel9.setText("Vendido:");
 
         jLabel10.setText("Balance:");
+
+        txtTiempoJuego.setEditable(false);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -413,30 +376,34 @@ public class Principal extends javax.swing.JFrame {
                             .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jFormattedTextField10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addGap(107, 107, 107)
-                                        .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(txtFechaAlta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(txtAccionesCompradas, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtComprasDinero, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 42, Short.MAX_VALUE)))
-                        .addGap(96, 96, 96))))
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                                .addGap(107, 107, 107)
+                                                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(txtFechaAlta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                                .addComponent(txtAccionesCompradas, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(txtComprasDinero, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addGap(0, 42, Short.MAX_VALUE)))
+                                .addGap(96, 96, 96))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(txtTiempoJuego, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jFormattedTextField10, jTextField6, txtAccionesCompradas, txtFechaAlta});
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jTextField6, txtAccionesCompradas, txtFechaAlta});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -450,7 +417,7 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jFormattedTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTiempoJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -782,22 +749,23 @@ public class Principal extends javax.swing.JFrame {
             setLocationRelativeTo(null);
             timerRanking.setMinimum(0);                 //sets the minimum value for timerRanking
             timerRanking.setMaximum(6);                //sets the maximum value for timerRanking
-            timerRanking.setValue(0);
             timerAPI.setMinimum(0);                     //sets the minimum value for timerAPI
             timerAPI.setMaximum(15);                    //sets the maximum value for timerAPI
-            timerAPI.setValue(0);
             //pestaña estado -------------------------------------------------------------------
-            //calcular fecha de alta, tiempo de juego, compras de acciones, ventas y balance
-            UpdateWindow();
-            String queryFA = "SELECT FechaAlta FROM player WHERE playerName = '" + txtPlayer.getText() + "'";
-            txtFechaAlta.setText(dbAccess.exQuery(queryFA).getDate(1).toString());
+            //calcular fecha de alta
+            String queryFA = "SELECT FechaAlta, TiempoJuego "+
+                            "FROM player "+
+                            "WHERE playerName = '" + txtPlayer.getText() + "'";
+            ResultSet rs = dbAccess.exQuery(queryFA);
+            
+            txtFechaAlta.setText(rs.getDate("FechaAlta").toString());
+            txtTiempoJuego.setText((Consola.int2strTime(rs.getInt("TiempoJuego"))));
             
             //pestaña valores ------------------------------------------------------------------
             PreparaArbol();
-            playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
             PanelDetalle.setVisible(false);             //oculta PanelDetalle (jPanel de detalle de empresa)
             //pestaña Ranking ------------------------------------------------------------------
-            CalcularRanking();                          //calcula el ranking
+            playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
         } catch(Exception ex){
             System.err.println("Error en inicializacion de pantalla.\n"+ex.getMessage());
         }
@@ -943,7 +911,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JTextField detalleSimbolo;
     private javax.swing.JTextField detalleWeb;
     private javax.persistence.EntityManager entityManager;
-    private javax.swing.JFormattedTextField jFormattedTextField10;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel14;
@@ -986,5 +953,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField txtFechaAlta;
     private javax.swing.JSpinner txtNumAcciones;
     private static javax.swing.JLabel txtPlayer;
+    private javax.swing.JTextField txtTiempoJuego;
     // End of variables declaration//GEN-END:variables
 }

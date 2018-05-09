@@ -110,11 +110,13 @@ public class dbAccess {
         //Consola.Mensaje("Ejecutando query: " + sql);
         try{
             rs=state.executeQuery(sql);
+            System.out.println(sql);
         } catch(SQLException e){
             System.err.println("Error en ejecución de consulta: " + e.getSQLState() + "\n"+e.getMessage());
         } catch(NullPointerException e){
             System.err.println("Error Null Pointer Exception. " + e.getMessage());
         }
+        System.out.println(rs.getRow());
         return rs.getRow();
     }
     

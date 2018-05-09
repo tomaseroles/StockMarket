@@ -114,10 +114,13 @@ public class Player {
         if(username.equals("guest")){
             return true;
         } else{
-            String query = "SELECT COUNT(*) AS Contador " +
+            System.out.println("La funcion Player.Login recibe params: " + username + "/" + password);
+            String query = "SELECT playerName " +
                            "FROM player " +
-                           "WHERE ((PlayerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
-            return (dbAccess.exQueryCount(query)==1);
+                           "WHERE ((playerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
+            System.out.println(query);
+            System.out.println("Resultado: " + dbAccess.exQuery(query).getString(1));
+            return (dbAccess.exQuery(query).getRow()==1);
         }
     }
         
