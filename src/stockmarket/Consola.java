@@ -14,4 +14,6 @@ public class Consola {
     public static void DialogBox(String mensaje, String titulo){
         
     }
+    
+    
 }

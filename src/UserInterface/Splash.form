@@ -65,12 +65,12 @@
               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
               <Component id="txtPassword" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="170" pref="170" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="155" max="-2" attributes="0"/>
               <Component id="cmdSignup" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="cmdSignIn" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
-                  <Component id="cmdGuestEnter" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cmdSignIn" alignment="3" min="-2" pref="48" max="-2" attributes="0"/>
+                  <Component id="cmdGuestEnter" alignment="3" min="-2" pref="48" max="-2" attributes="0"/>
               </Group>
           </Group>
           <Component id="txtCloseWindow" min="-2" max="-2" attributes="0"/>

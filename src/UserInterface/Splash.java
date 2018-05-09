@@ -41,7 +41,9 @@ public class Splash extends javax.swing.JFrame {
 
     private void Login(String usuario, String password) throws Exception{
         String titulo = "Autenticación";
+        System.out.println("En Login");
         try{
+            System.out.println("Still login");
             if (Player.LogIn(usuario, password)){
                 GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
                 hAPI.start();
@@ -50,7 +52,7 @@ public class Splash extends javax.swing.JFrame {
                 p.setVisible(true);
                 p.setUser(usuario);
             } else {
-                Consola.DialogBox("Usuario y/o contraseña incorrectos", titulo);
+                System.out.println("Usuario y/o contraseña incorrectos");
             }
         } catch(Exception ex){
             System.err.println("Error en autenticación de usuario" + ex.getMessage());
@@ -171,12 +173,12 @@ public class Splash extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(4, 4, 4)
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(170, 170, 170)
+                .addGap(155, 155, 155)
                 .addComponent(cmdSignup)
-                .addGap(18, 18, 18)
+                .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdGuestEnter)))
+                    .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmdGuestEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))
             .addComponent(txtCloseWindow)
         );
 
@@ -186,7 +188,9 @@ public class Splash extends javax.swing.JFrame {
     private void cmdSignupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdSignupMouseClicked
         // TODO add your handling code here:
         try{
-           Login(txtUsername.getText(),txtPassword.getPassword().toString());
+            System.out.println("Usuario:    " + txtUsername.getText());
+            System.out.println("Contraseña: " + txtPassword.getPassword().toString());
+            Login(txtUsername.getText(),txtPassword.getPassword().toString());
         } catch (Exception ex){
             System.err.println("Error de autenticación.\n"+ex.getMessage());
         }

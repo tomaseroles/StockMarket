@@ -5,11 +5,12 @@ import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class Player {
-    public static void UpdateEquities(){
+    public static void UpdateEquities(String jugador){
+        System.out.println("Recuperar nuevos valores de las acciones del jugador desde la API...");
         String query = "SELECT Symbol, Sum(equities*multiplier) AS Neto "+
                        "FROM transaction " +
                        "GROUP BY Symbol " +
-                       "HAVING Neto>0 AND PlayerName ='" + Principal.getCurrentPlayer() +"';" ;
+                       "HAVING Neto>0 AND PlayerName ='" + jugador +"';" ;
         
         try{
             ResultSet rs = dbAccess.exQuery(query);
@@ -25,9 +26,7 @@ public class Player {
             System.out.println("Fallo la consulta. "+ex.getMessage());
         }
     }
-    public static void UpdateRanking(){
-        
-    }
+
     public static void Register(String email, String name, String password) throws Exception{
         /*
         This method creates a new user using verified data such a non repeated username and a valid email.
@@ -112,10 +111,14 @@ public class Player {
         Devuelve
         - boolean: verdadero si es correcto, falso si no es correcto
         */
-        String query = "SELECT COUNT(*) AS Contador " +
-                       "FROM player " +
-                       "WHERE ((PlayerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
-        return (dbAccess.exQueryCount(query)==1);
+        if(username.equals("guest")){
+            return true;
+        } else{
+            String query = "SELECT COUNT(*) AS Contador " +
+                           "FROM player " +
+                           "WHERE ((PlayerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
+            return (dbAccess.exQueryCount(query)==1);
+        }
     }
         
     public static boolean isEmail(String email){

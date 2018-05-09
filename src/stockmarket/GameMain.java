@@ -11,7 +11,7 @@ public class GameMain {
     public static boolean online=true;
     public static boolean logfile=false;
     public static String playerName="";
-    private static int msMin = 60*1000;         //60.000ms = 1 minuto
+    private static int msMin = 10000;     //el tiempo de sleep del hilo se establece en 10 segundos. Si t<5 da error
 
     public static class hPrincipal extends Thread{
         Splash splash = new Splash();
@@ -39,21 +39,8 @@ public class GameMain {
             while (true){
                 try {
                     System.out.println("Hilo hAccesoAPI dormido");
-                    System.out.println("Ciclo " + ciclos);
-                    sleep(msMin);
-                    System.out.println("Hilo hAccesoAPI despierto");
-                    ciclos++;
-                    if (ciclos==15){
-                        //actualizar precios de acciones para usuario des de la api (cada 15 minutos)
-                        Player.UpdateEquities();
-                        Principal.UpdateAPI();
-                        System.out.println("UpdateEquities");
-                        ciclos=0;
-                    }
-                    //actualizar ranking (cada minuto)
-                    System.out.println("Ciclo " + ciclos + ". UpdateRanking. UpdateData");
-                    Player.UpdateRanking();
-                    Principal.UpdateData();
+                    sleep(msMin);       //duerme durante 6 segundos
+                    Principal.UpdateTimerData();
                 } catch (InterruptedException ex) {
                     Logger.getLogger(GameMain.class.getName()).log(Level.SEVERE, null, ex);
                 }

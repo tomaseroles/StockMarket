@@ -1,38 +1,21 @@
 package UserInterface;
 
-import java.awt.Container;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.BoundedRangeModel;
-import javax.swing.ComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTree;
+import javax.imageio.ImageIO;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import stockmarket.dbAccess;
 import stockmarket.Company;
 import stockmarket.Consola;
-import stockmarket.GameMain;
+import stockmarket.Player;
 import stockmarket.Transaction;
 
 public class Principal extends javax.swing.JFrame {
-    private DefaultMutableTreeNode rootNode;
     private DefaultTreeModel treeModel;
 
-    /**
-     * Creates new form NewJFrame
-     */
     public Principal() {
         //PanelDetalle.setVisible(false);
         initComponents();
@@ -41,25 +24,41 @@ public class Principal extends javax.swing.JFrame {
     public Principal(String username){
         System.out.println("Usuario: " + username);
         txtPlayer.setText(username);
-        
     }
-    
     
     //---------------------------------------------------------------------------
     // Funciones definidas para el proyecto
 
-    public static void UpdateAPI(){
-        timerAPI.setValue(timerAPI.getValue()+1);
+    public static void UpdateTimerAPI(){
+        /*
+        Actualiza el valor de la barra de progreso API o la pone a cero. 
+        Al llegar al final actualiza los valores de las acciones del jugador
+        */
+        
+        if(timerAPI.getValue()==timerAPI.getMaximum()){
+            timerAPI.setValue(0);
+            timerAPI.setString(""+timerAPI.getValue()+"/"+timerAPI.getMaximum());
+            Player.UpdateEquities(txtPlayer.getText());
+            //TO-DO: actualizar contenido de la tabla Valores
+        } else {
+            timerAPI.setValue(timerAPI.getValue()+1);
+        }
     }
     
-    public static void UpdateData(){
+    public static void UpdateTimerData(){
         /*
         UpdateData
         Actualiza el contenido de los controles que dependen de la base de datos y/o de la API
         */
-        timerRanking.setValue(timerRanking.getValue()+1);
-        CalcularRanking();
         
+        if(timerRanking.getValue()==timerRanking.getMaximum()){
+            timerRanking.setValue(timerRanking.getMinimum());
+            timerRanking.setString(""+timerRanking.getValue()+"/"+timerRanking.getMaximum());
+            CalcularRanking();
+            UpdateTimerAPI();
+        } else {
+            timerRanking.setValue(timerRanking.getValue()+1);
+        }
     }
     public static String getCurrentPlayer(){
         /*
@@ -67,17 +66,6 @@ public class Principal extends javax.swing.JFrame {
         Devuelve el nombre de usuario de jugador activo
         */
         return txtPlayer.getText();
-    }
-    
-    public static void ActualizarBarra(String nombre, int valor){
-        BoundedRangeModel modelo=null;
-
-        modelo.setValue(valor);
-        if(nombre.equals("API")){
-            timerAPI.setModel(modelo);
-        } else{
-            timerRanking.setModel(modelo);
-        }
     }
     
     private boolean canTransact(){
@@ -99,7 +87,6 @@ public class Principal extends javax.swing.JFrame {
             String nodo = treeStocks.getLastSelectedPathComponent().toString();
             System.out.println("Nodo: " + nodo);
             boolean flag=false;
-            DefaultTableModel modelo = new DefaultTableModel();
             if(nodo.equals("Not classified")){
                 query = "SELECT Symbol, coName, coCEO, coWebsite, Format(Capitalization,'Currency') AS Capital, Format(sharesOutstanding,'Currency') AS Acciones, Format(coValue,'Currency') AS PrecioAccion "
                         + "FROM Company "
@@ -107,10 +94,7 @@ public class Principal extends javax.swing.JFrame {
                 flag=true;
             } else {            
                 String path = treeStocks.getSelectionPath().toString();
-                System.out.println("Ruta: " + path);
                 String[] camino = Company.getCompletePath(path);
-                System.out.println(camino[1] + "/" + camino[2] + "/" + camino[3]);
-                System.out.println(">" + camino[1] + "/" + camino[2] + "/" + camino[3]);
                 
                 if(!(camino[1].equals(null)) && !(camino[2].equals(null)) && !(camino[3].equals(null))){
                     query = "SELECT Symbol, coName, coCEO, coWebSite, Format(Capitalization,'Currency') AS Capital, Format(sharesOutstanding,'Currency') AS Acciones, Format(coValue,'Currency') AS PrecioAccion "
@@ -121,27 +105,9 @@ public class Principal extends javax.swing.JFrame {
             }
             
             if(flag){
+                DefaultTableModel modelo = new DefaultTableModel();
+                modelo = dbAccess.ObtenerModelo(query);
                 this.Valores.setModel(modelo);
-                System.out.println(query);
-                ResultSet rs = dbAccess.exQuery(query);
-                ResultSetMetaData rsmd = rs.getMetaData();
-                int columnas = rsmd.getColumnCount();
-                int filas=0;
-                System.out.println("Columnas: " + columnas);
-                for(int i=1;i<=columnas;i++){
-                    modelo.addColumn(rsmd.getColumnLabel(i));
-                }
-                Object[] fila = new Object[columnas];
-                while(rs.next()){
-                    for(int i=0;i<columnas;i++){
-                        fila[i]=rs.getString(i+1);
-                        //System.out.print(fila[i] + ";");
-                    }
-                    //System.out.println();
-                    modelo.addRow(fila);
-                    filas++;
-                }
-                //System.out.println("Filas: " + filas);
             } else {
                 System.out.println("No hay datos que mostrar.");
             }
@@ -150,60 +116,36 @@ public class Principal extends javax.swing.JFrame {
         }
     }
     
-    public static void ActualizarTimer(int tiempo){
-        /*
-        ActualizarTimer
-        Actualiza la barra de progreso
-        La barra de progreso tarda 15 minutos en actualizarse
-        Cada ciclo de 15 minutos:
-        - se lee el valor actual de todas las acciones que posee el usuario activo
-        - se cambia el valor en la BBDD
-        - se recalcula el valor de las acciones
-        - se recalcula la perdida o ganancia del jugador para cada accion
-        - se recalcula la perdida o ganancia total
-        Cada ciclo de 1 minuto:
-        - recalcula el Ranking de jugadores
-        */
-            
-    }
-    
-    private void upRanking(int valor){
-        timerRanking.setValue(valor/1000);
-        if(valor==timerRanking.getMaximum())
-            CalcularRanking();
-    }
-    
     private void MostrarJugadas(String jugador){
-        String query = "SELECT Symbol, trDate AS Fecha, syPrice AS Precio, Multiplier AS Operacion "
-        +"FROM transaction "
-        +"WHERE PlayerName = '" + jugador + "';";
-        
-        DefaultTableModel modelo = new DefaultTableModel();
-        modelo=dbAccess.ObtenerModelo(query);
+        String query = "SELECT Simbolo, Empresa, Fecha, Compra, Venta "+
+                        "FROM operacionesjugador "+
+                        "WHERE PlayerName = '" + jugador + "'"+
+                        "ORDER BY Fecha ASC";
+        DefaultTableModel modelo = dbAccess.ObtenerModelo(query);
         playerTransactions.setModel(modelo);
+    }
+    private static void AccionesJugador(){
+        String query = "SELECT Simbolo, Empresa, Acciones "+
+                        "FROM AccionesJugador "+
+                        "WHERE PlayerName = '" + txtPlayer.getText() + "';";
+        DefaultTableModel modelo = dbAccess.ObtenerModelo(query);
+        Acciones.setModel(modelo);
+    }
+    
+    private static  void OperacionesJugador(){
+        String query = "SELECT Simbolo, Empresa, Fecha, Compra, Venta "+
+                        "FROM OperacionesJugador "+
+                        "WHERE PlayerName = '" + txtPlayer.getText() + "';";
+        DefaultTableModel modelo = dbAccess.ObtenerModelo(query);
+        Operaciones.setModel(modelo);
     }
     
     private static void CalcularRanking(){
         String ranking = "SELECT * FROM playersranking;";
-        DefaultTableModel modelo = new DefaultTableModel();
+        DefaultTableModel modelo = dbAccess.ObtenerModelo(ranking);
         Ranking.setModel(modelo);
-        try{
-            ResultSet rs = dbAccess.exQuery(ranking);
-            for (int i=1;i<=rs.getMetaData().getColumnCount();i++){
-                modelo.addColumn(rs.getMetaData().getColumnName(i));
-            }
-            while(rs.next()){
-                Object[] fila = new Object[rs.getMetaData().getColumnCount()];
-                for(int i=0;i<rs.getMetaData().getColumnCount();i++){
-                    fila[i]=rs.getObject(i+1);
-                }
-                modelo.addRow(fila);
-            }
-        } catch(Exception ex){
-            System.out.println("Error al calcular ranking: " + ex.getMessage());
-        }
     }
-    
+        
     public void MostrarDetalleSimbolo(String simbolo){
         if(treeStocks.getLastSelectedPathComponent().toString()!="Not classified"){
             PanelDetalle.setVisible(true);
@@ -225,10 +167,9 @@ public class Principal extends javax.swing.JFrame {
                 //detalleEmpresa.setText(rs.getString("coName"));
                 //detalleSimbolo.setText(simbolo);
                 //detalleWeb.setText(rs.getString("coWeb"));
-                String path = Company.getRawCompanyLogo(simbolo);
-                URL url = getClass().getResource(path);
-                ImageIcon icon = new ImageIcon(url);
-                Logotipo.setIcon(icon);
+                System.out.println("Colocamos la imagen en el control.\n"+getClass().getResource(Company.getRawCompanyLogo(simbolo)).toString());
+                BufferedImage img = ImageIO.read(new URL(getClass().getResource(Company.getRawCompanyLogo(simbolo)).toString()));
+                Logotipo.setIcon(new javax.swing.ImageIcon(img.getScaledInstance(438,438,2)));
             } catch(Exception ex){
                 System.out.println("Error en consulta: " + ex.getMessage());
             }
@@ -243,12 +184,7 @@ public class Principal extends javax.swing.JFrame {
         Consola.Mensaje("Preparando Arbol");
         treeStocks.removeAll();
         try{
-            Container content = getContentPane();
-            JFrame frame = new JFrame();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            
             DefaultMutableTreeNode arbol = Company.getTreeFromDB();
-            
             treeModel = new DefaultTreeModel(arbol);
             treeModel.setRoot(arbol);
             treeStocks.setModel(treeModel);             //treeModel es el control JTree
@@ -256,8 +192,44 @@ public class Principal extends javax.swing.JFrame {
         } catch (Exception ex){
             System.err.println(ex.getMessage());
         }
-        
-        
+    }
+
+    public static void UpdateWindow(){
+        /*
+        UpdateWindow()
+        Puesta a punto de los controles genericos de la ventana.
+        Se utiliza cada vez que hay cambios en la ventana para los controles. Casos:
+        - Transacciones realizadas
+        - Ciclos de thread = 10 (10 ciclos de 6 segundos/ciclo=1 miuto)
+        - Ciclos de API = 150 (
+        */
+        //pestaña Estado
+        //falta datos generales del jugador
+        AccionesJugador();
+        OperacionesJugador();
+        //pestaña valores
+        //pestaña ranking
+    
+    
+    
+//                String queryCompras = "SELECT SUM(equities), SUM(equities*syPrice) "+
+//                                  "FROM transaction "+
+//                                  "WHERE ("+
+//                                  "(PlayerName= '" + txtPlayer.getText() + "') AND "+
+//                                  "(Multiplier=1)"+
+//                                ");";
+//            txtAccionesCompradas.setText(dbAccess.exQuery(queryCompras).getString(1));
+//            txtComprasDinero.setText(dbAccess.exQuery(queryCompras).getString(2));
+//            String queryVentas = "SELECT SUM(equities), SUM(equities*syPrice) "+
+//                                  "FROM transaction "+
+//                                  "WHERE ("+
+//                                  "(PlayerName= '" + txtPlayer.getText() + "') AND "+
+//                                  "(Multiplier=-1)"+
+//                                ");";
+
+    
+    
+    
     }
         
     //---------------------------------------------------------------------------
@@ -286,17 +258,17 @@ public class Principal extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         tabStatus = new javax.swing.JInternalFrame();
         jScrollPane6 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        Operaciones = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jFormattedTextField1 = new javax.swing.JFormattedTextField();
+        txtFechaAlta = new javax.swing.JFormattedTextField();
         jLabel4 = new javax.swing.JLabel();
         jFormattedTextField10 = new javax.swing.JFormattedTextField();
         txtPlayer = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        txtAccionesCompradas = new javax.swing.JTextField();
+        txtComprasDinero = new javax.swing.JTextField();
         jTextField5 = new javax.swing.JTextField();
         jTextField6 = new javax.swing.JTextField();
         jTextField8 = new javax.swing.JTextField();
@@ -305,7 +277,7 @@ public class Principal extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jScrollPane7 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        Acciones = new javax.swing.JTable();
         tabEquities = new javax.swing.JInternalFrame();
         jPanel2 = new javax.swing.JPanel();
         cmdRefresh = new javax.swing.JButton();
@@ -336,10 +308,6 @@ public class Principal extends javax.swing.JFrame {
         Ranking = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
         playerTransactions = new javax.swing.JTable();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        fileConnect = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -381,7 +349,7 @@ public class Principal extends javax.swing.JFrame {
 
         tabStatus.setVisible(true);
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        Operaciones.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -392,11 +360,11 @@ public class Principal extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane6.setViewportView(jTable2);
+        jScrollPane6.setViewportView(Operaciones);
 
         jLabel3.setText("Fecha de alta:");
 
-        jFormattedTextField1.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
+        txtFechaAlta.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
 
         jLabel4.setText("Tiempo de juego:");
 
@@ -410,9 +378,9 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel2.setText("Comprado:");
 
-        jTextField1.setText("jTextField1");
+        txtAccionesCompradas.setText("jTextField1");
 
-        jTextField2.setText("jTextField2");
+        txtComprasDinero.setText("jTextField2");
 
         jTextField5.setText("jTextField2");
 
@@ -435,9 +403,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(txtPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(138, 138, 138))
+                    .addComponent(txtPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -455,22 +421,22 @@ public class Principal extends javax.swing.JFrame {
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                         .addGap(107, 107, 107)
                                         .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jFormattedTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtFechaAlta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                         .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtAccionesCompradas, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                            .addComponent(txtComprasDinero, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(0, 42, Short.MAX_VALUE)))
                         .addGap(96, 96, 96))))
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jFormattedTextField1, jFormattedTextField10, jTextField1, jTextField6});
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jFormattedTextField10, jTextField6, txtAccionesCompradas, txtFechaAlta});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -480,7 +446,7 @@ public class Principal extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jFormattedTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtFechaAlta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -493,8 +459,8 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtAccionesCompradas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtComprasDinero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -507,7 +473,7 @@ public class Principal extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        Acciones.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -518,7 +484,7 @@ public class Principal extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane7.setViewportView(jTable3);
+        jScrollPane7.setViewportView(Acciones);
 
         javax.swing.GroupLayout tabStatusLayout = new javax.swing.GroupLayout(tabStatus.getContentPane());
         tabStatus.getContentPane().setLayout(tabStatusLayout);
@@ -533,14 +499,14 @@ public class Principal extends javax.swing.JFrame {
         );
         tabStatusLayout.setVerticalGroup(
             tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-            .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
             .addGroup(tabStatusLayout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Estado del jugador", tabStatus);
+        jTabbedPane1.addTab("Estado", tabStatus);
 
         tabEquities.setVisible(true);
 
@@ -713,7 +679,7 @@ public class Principal extends javax.swing.JFrame {
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(PanelDetalle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE))
                 .addGap(2, 2, 2))
         );
 
@@ -728,7 +694,7 @@ public class Principal extends javax.swing.JFrame {
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Lista de Valores", tabEquities);
+        jTabbedPane1.addTab("Valores", tabEquities);
 
         tabRanking.setVisible(true);
 
@@ -775,33 +741,11 @@ public class Principal extends javax.swing.JFrame {
         );
         tabRankingLayout.setVerticalGroup(
             tabRankingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Ranking", tabRanking);
-
-        jMenu1.setText("File");
-        jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenu1MouseClicked(evt);
-            }
-        });
-
-        fileConnect.setText("Connect");
-        fileConnect.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                fileConnectMouseClicked(evt);
-            }
-        });
-        jMenu1.add(fileConnect);
-
-        jMenuBar1.add(jMenu1);
-
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
-
-        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -818,7 +762,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(BarraSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
         );
 
         pack();
@@ -833,25 +777,30 @@ public class Principal extends javax.swing.JFrame {
         el precio actual servirá para calcular el valor actual de las acciones compradas
         esta lista viene de la lista de transacciones, y se 
         */
-        //pestaña transacciones
-        //pestaña valores
-        setLocationRelativeTo(null);
-        playerTransactions.setVisible(false);
-        PanelDetalle.setVisible(false);
         try{
-            //PreparaMercados();
+            //Configuracion general de controles de la ventana
+            setLocationRelativeTo(null);
+            timerRanking.setMinimum(0);                 //sets the minimum value for timerRanking
+            timerRanking.setMaximum(6);                //sets the maximum value for timerRanking
+            timerRanking.setValue(0);
+            timerAPI.setMinimum(0);                     //sets the minimum value for timerAPI
+            timerAPI.setMaximum(15);                    //sets the maximum value for timerAPI
+            timerAPI.setValue(0);
+            //pestaña estado -------------------------------------------------------------------
+            //calcular fecha de alta, tiempo de juego, compras de acciones, ventas y balance
+            UpdateWindow();
+            String queryFA = "SELECT FechaAlta FROM player WHERE playerName = '" + txtPlayer.getText() + "'";
+            txtFechaAlta.setText(dbAccess.exQuery(queryFA).getDate(1).toString());
             
+            //pestaña valores ------------------------------------------------------------------
             PreparaArbol();
-            timerRanking.setMinimum(0);
-            timerRanking.setMaximum(60);
-            timerAPI.setMinimum(0);
-            timerAPI.setMaximum(15);
-            CalcularRanking();
-        }catch (Exception ex){
-            System.err.println("Error al configurar ventana Principal.\n"+ex.getMessage());
+            playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
+            PanelDetalle.setVisible(false);             //oculta PanelDetalle (jPanel de detalle de empresa)
+            //pestaña Ranking ------------------------------------------------------------------
+            CalcularRanking();                          //calcula el ranking
+        } catch(Exception ex){
+            System.err.println("Error en inicializacion de pantalla.\n"+ex.getMessage());
         }
-        //pestaña ranking
-        
     }//GEN-LAST:event_formWindowOpened
 
     private void cmdClasificarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdClasificarMouseClicked
@@ -907,15 +856,6 @@ public class Principal extends javax.swing.JFrame {
         System.out.println("Se ha seleccionado Valores: " + Valores.getValueAt(Valores.getSelectedRow() , 0).toString());
         MostrarDetalleSimbolo(Valores.getValueAt(Valores.getSelectedRow() , 0).toString());
     }//GEN-LAST:event_ValoresMouseClicked
-
-    private void fileConnectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fileConnectMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_fileConnectMouseClicked
-
-    private void jMenu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MouseClicked
-        // TODO add your handling code here:
-        //Conectar();
-    }//GEN-LAST:event_jMenu1MouseClicked
 
     private void cmdComprarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdComprarMouseClicked
         // TODO add your handling code here:
@@ -981,8 +921,10 @@ public class Principal extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static javax.swing.JTable Acciones;
     private javax.swing.JToolBar BarraSuperior;
     private javax.swing.JLabel Logotipo;
+    private static javax.swing.JTable Operaciones;
     private javax.swing.JPanel PanelDetalle;
     public static javax.swing.JTable Ranking;
     private javax.swing.JTable Valores;
@@ -1001,8 +943,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JTextField detalleSimbolo;
     private javax.swing.JTextField detalleWeb;
     private javax.persistence.EntityManager entityManager;
-    private javax.swing.JMenu fileConnect;
-    private javax.swing.JFormattedTextField jFormattedTextField1;
     private javax.swing.JFormattedTextField jFormattedTextField10;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1019,9 +959,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -1034,10 +971,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField8;
@@ -1048,6 +981,9 @@ public class Principal extends javax.swing.JFrame {
     private static javax.swing.JProgressBar timerAPI;
     private static javax.swing.JProgressBar timerRanking;
     private javax.swing.JTree treeStocks;
+    private javax.swing.JTextField txtAccionesCompradas;
+    private javax.swing.JTextField txtComprasDinero;
+    private javax.swing.JFormattedTextField txtFechaAlta;
     private javax.swing.JSpinner txtNumAcciones;
     private static javax.swing.JLabel txtPlayer;
     // End of variables declaration//GEN-END:variables
