@@ -22,16 +22,23 @@ package stockmarket;
  */
 public class Transaction {
     public static void newTransaction(String symbol, String Player, int equities, int operation){
-        String query = "INSERT INTO transaction(Symbol, PlayerName, Equities, syPrice, Multiplier) "
+        String query1, query2;
+        double valorOperacion = equities*Double.parseDouble(Company.getCompanyPrice(symbol));
+        query1 = "INSERT INTO transaction(Symbol, PlayerName, Equities, syPrice, Multiplier) "
                 +"VALUES('" + symbol + "', "
                 +       "'" + Player + "', "
                 +       ""  + equities + ", "
                 +       "'" + Double.parseDouble(Company.getCompanyPrice(symbol)) + "', "
                 +       ""  + operation + ");"; 
+        query2 = "UPDATE Player "+
+                "SET cashMoney = cashMoney - " + valorOperacion + " "+
+                    "moneyInvested = moneyInvested + " + valorOperacion + " " +
+                "WHERE playerName = '" + Player + "';";
         try{
-            dbAccess.ExecuteNQ(query);
+            dbAccess.ExecuteNQ(query1);
+            dbAccess.ExecuteNQ(query2);
         } catch(Exception ex){
-            System.out.println("Error en registro de transaccion: " + ex.getMessage() + "\n" + query);
+            System.out.println("Error en registro de transaccion: " + ex.getMessage() + "\n" + query1 + "\n" + query2);
         }
     }
 }

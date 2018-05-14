@@ -8,12 +8,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Array;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Company {
@@ -54,6 +52,11 @@ public class Company {
         return "{ \n\"price\": \""+ClienteREST.request(urlPrefix+symbol+"/price")+"\"\n}";
     }
         
+    public static double getCompanyDoublePrice(String symbol) throws JSONException{
+        String txt=getCompanyPrice(symbol);
+        JSONObject obj = new JSONObject(txt);
+        return obj.getDouble("price");
+    }
     public static void ShowCompanyPrice(String symbol) throws Exception{
         String txt=getCompanyPrice(symbol);
         JSONObject obj = new JSONObject(txt);
@@ -166,7 +169,7 @@ public class Company {
         return camino;
     }
     
-    public static DefaultMutableTreeNode getTreeFromDB(){
+    public static DefaultMutableTreeNode getTreeFromDB(String username){
         /*
         Crea un objeto DefaultMutableTreeNode leyendo la base de datos
         El objeto se devuelve a la clase Principal para que lo plasme en el arbol
@@ -204,7 +207,8 @@ public class Company {
                     }
                 }
             }
-            tree.add(new DefaultMutableTreeNode("Not classified"));
+            if(username.equals("admin"))
+                tree.add(new DefaultMutableTreeNode("Not classified"));
         } catch(Exception ex){
             System.out.println("Error en getTreeFromDB. " + ex.getMessage());
         }
@@ -239,6 +243,9 @@ public class Company {
         String txt2 = getCompanyStats(symbol);
         JSONObject obj2 = new JSONObject(txt2);
         
+        String txt3 = getCompanyPrice(symbol);
+        JSONObject obj3 = new JSONObject(txt3);
+        
         String descripcion = obj.getString("description");
         System.out.println(descripcion);
         if (descripcion.contains("\'")){
@@ -254,7 +261,7 @@ public class Company {
                      +     "coDescription = '" + descripcion + "', "
                      +     "Capitalization = " + obj2.getLong("marketcap") + ", "
                      +     "sharesOutstanding = " + obj2.getLong("sharesOutstanding") + ", "
-                     +     "coValue = '" + (double)obj2.getLong("marketcap")/(double)obj2.getLong("sharesOutstanding") + "' " 
+                     +     "coValue = '" + obj3.getDouble("price") + "' " 
                      + "WHERE Symbol = '"   + symbol + "';";
         System.out.println(query);
         dbAccess.ExecuteNQ(query);
@@ -283,28 +290,7 @@ public class Company {
         ResultSet rs = dbAccess.exQuery(query);
         return (rs.getInt("Contador")==1);
     }
-    
-//    public static ArrayList getTreeFromDB2(){
-//        ArrayList list = new ArrayList();
-//        try{
-//            String sqlArbolMarket = "SELECT coMarket, coSector, coIndustry "
-//                                    +"FROM company "
-//                                    +"GROUP BY coMarket, coSector, coIndustry "
-//                                    +"HAVING ((coMarket Is Not Null) AND (coSector Is Not Null)) AND (coIndustry Is Not Null);";
-//            Consola.Mensaje(sqlArbolMarket);
-//            list.add("Markets");
-//            ResultSet rsMarket = dbAccess.exQuery(sqlArbolMarket);
-//            while (rsMarket.next()){
-//                Object value[] = {rsMarket.getString(1),rsMarket.getString(2),rsMarket.getString(3)};
-//                list.add(value);
-//            }
-//            list.add("Not yet classified");
-//        } catch(Exception ex){
-//            System.err.println(ex.getMessage());
-//        }
-//        return list;
-//    }            
-            
+                
     public static ArrayList getTreeSectors(String market){
         ArrayList list = new ArrayList();
         try{

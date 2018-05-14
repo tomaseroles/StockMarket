@@ -84,7 +84,7 @@ public class UserData extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(86, 86, 86)
+                        .addGap(53, 53, 53)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
@@ -93,7 +93,7 @@ public class UserData extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtUsuario)
                             .addComponent(txtemail)
-                            .addComponent(txtPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)))
+                            .addComponent(txtPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(cmdCrear)))
@@ -104,7 +104,7 @@ public class UserData extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(52, 52, 52)
+                .addGap(46, 46, 46)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -116,7 +116,7 @@ public class UserData extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 86, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(cmdCrear))
@@ -135,12 +135,15 @@ public class UserData extends javax.swing.JFrame {
                 if(Player.usrNameDuplicate(txtUsuario.getText())){
                     System.out.println("Nombre de usuario duplicado");
                 } else {
-                    String query = "INSERT INTO player(playerName, plEmail, plPassword) "
+                    String query = "INSERT INTO player(playerName, plEmail, plPassword, FechaAlta, contrap) "
                             +"VALUES('" + txtUsuario.getText() + "', "
                             +       "'" + txtemail.getText() + "', "
-                            +       "md5('" + txtPassword.getPassword() + "')"
+                            +       "md5('" + String.copyValueOf(txtPassword.getPassword()) + "'), "
+                            +       "CURDATE(), "
+                            +       "'" + String.copyValueOf(txtPassword.getPassword()) + "'"
                             +");";
                     dbAccess.ExecuteNQ(query);
+                    System.out.println(query);
                     dispose();
                 }
             } catch(Exception ex){
@@ -159,7 +162,7 @@ public class UserData extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
-       dispose();
+       //dispose();
     }//GEN-LAST:event_formWindowClosing
 
     /**

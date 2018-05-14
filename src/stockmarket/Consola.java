@@ -1,6 +1,8 @@
 
 package stockmarket;
 
+import UserInterface.DialogBox;
+
 /**
  *
  * @author Tomas
@@ -12,7 +14,8 @@ public class Consola {
     }
     
     public static void DialogBox(String mensaje, String titulo){
-        
+        DialogBox db = new DialogBox(mensaje,titulo);
+        //db.setVisible(true);
     }
     
     public static String int2strTime(int minutos){

@@ -111,17 +111,33 @@ public class Player {
         Devuelve
         - boolean: verdadero si es correcto, falso si no es correcto
         */
-        if(username.equals("guest")){
-            return true;
+        
+        boolean salida=false;
+        if(username.equals("guest") || (username.equals("admin") && (password.equals("admin")))){
+            salida= true;
         } else{
-            System.out.println("La funcion Player.Login recibe params: " + username + "/" + password);
-            String query = "SELECT playerName " +
-                           "FROM player " +
-                           "WHERE ((playerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
-            System.out.println(query);
-            System.out.println("Resultado: " + dbAccess.exQuery(query).getString(1));
-            return (dbAccess.exQuery(query).getRow()==1);
+            try{
+                String query = "SELECT playerName " +
+                               "FROM player " +
+                               "WHERE ((playerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
+                ResultSet rs = dbAccess.exQuery(query);
+                while(rs.next()){
+                    if(rs.getString(1).equals(username)){
+                        String q2 = "UPDATE player "
+                                +   "SET isAlive = 1 "
+                                +   "WHERE playerName = '" + username + "';";
+                        dbAccess.ExecuteNQ(q2);
+                        salida=true;
+                    } else{
+                        salida=false;
+                    }
+                }
+            } catch(Exception ex){
+                System.err.println("Error en autenticación de usuario: " + ex.toString());
+            }
+            //return (dbAccess.exQuery(query).getRow()==1);
         }
+        return salida;
     }
         
     public static boolean isEmail(String email){
@@ -163,4 +179,10 @@ public class Player {
             Consola.Mensaje("");
         }
     }
+    
+    public static void AumentaMinutos(String jugador, int cantidad) throws Exception{
+        String query = "UPDATE Player SET TiempoJuego = TiempoJuego + " + cantidad + " WHERE PlayerName = '" + jugador + "';";
+        dbAccess.ExecuteNQ(query);
+    }
+    
 }

@@ -3,6 +3,8 @@ package UserInterface;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -15,7 +17,8 @@ import stockmarket.Transaction;
 
 public class Principal extends javax.swing.JFrame {
     private DefaultTreeModel treeModel;
-
+    boolean PuedeJugar=false;               //determina si el usuario activo puede jugar o no
+    
     public Principal() {
         //PanelDetalle.setVisible(false);
         initComponents();
@@ -28,28 +31,73 @@ public class Principal extends javax.swing.JFrame {
     
     //---------------------------------------------------------------------------
     // Funciones definidas para el proyecto
+    
+    private void calcValorOperacion(){
+        Mensaje.setText("Calculando operación.");
+        Progreso.setValue(5);
+        
+        double actual = (double)txtPrecioActual.getValue();
+        double titulos = (double)txtNumAcciones.getValue();
+        double coste = actual*titulos;
+        CosteOperacion.setValue(coste);
+        Progreso.setValue(10);
+        double disponible = (double)Disponible.getValue();
+        double djuego = disponible-coste;
+        DisponibleJuego.setValue(djuego);
+        Progreso.setValue(0);
+        Mensaje.setText("");
+    }
+
+    private void CerrarSesion(){
+        String sql = "UPDATE player SET isAlive=0 WHERE playerName = '" + txtPlayer.getText() + "';";
+        
+        try {
+            dbAccess.ExecuteNQ(sql);
+        } catch (Exception ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        dispose();
+    }
+    
     private void ConfiguraInicio(){
         try{
             //Configuracion general de controles de la ventana
             setLocationRelativeTo(null);
+            Preparado.setText("En proceso...");
+            Mensaje.setText("Configurando valores iiciales de la ventana.");
+            Progreso.setValue(0);
             timerRanking.setMinimum(0);                 //sets the minimum value for timerRanking
             timerRanking.setMaximum(6);                //sets the maximum value for timerRanking
+            Progreso.setValue(1);
             timerAPI.setMinimum(0);                     //sets the minimum value for timerAPI
             timerAPI.setMaximum(15);                    //sets the maximum value for timerAPI
+            Progreso.setValue(2);
             //pestaña estado -------------------------------------------------------------------
             //calcular fecha de alta
+            Mensaje.setText("Configurando valores iniciales para la pestaña Estado.");
             String queryFA = "SELECT FechaAlta, TiempoJuego "+
                             "FROM player "+
                             "WHERE playerName = '" + txtPlayer.getText() + "'";
             ResultSet rs = dbAccess.exQuery(queryFA);
-            
+            Progreso.setValue(3);
             txtFechaAlta.setText(rs.getDate("FechaAlta").toString());
-            txtTiempoJuego.setText((Consola.int2strTime(rs.getInt("TiempoJuego"))));
+            Progreso.setValue(4);
+            TiempoJuego.setText((Consola.int2strTime(rs.getInt("TiempoJuego"))));
             
             //pestaña valores ------------------------------------------------------------------
-            PanelDetalle.setVisible(false);             //oculta PanelDetalle (jPanel de detalle de empresa)
+            Mensaje.setText("Configurando valores iniciales para la pestaña Valores.");
+            cmdDeclasificar.setEnabled(txtPlayer.getText().equals("admin"));
+            Progreso.setValue(5);
+            cmdClasificar.setEnabled(txtPlayer.getText().equals("admin"));
+            Progreso.setValue(6);
+            cmdComprar.setEnabled(PuedeJugar);
+            Progreso.setValue(7);
+            cmdVender.setEnabled(PuedeJugar);
+            Progreso.setValue(8);
+            txtNumAcciones.setEnabled(PuedeJugar);
             //pestaña Ranking ------------------------------------------------------------------
             playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
+            Progreso.setValue(9);
         } catch (Exception ex){
             System.err.println("Error en ConfiguracionInicio.\n"+ex.getMessage());
         }
@@ -57,13 +105,34 @@ public class Principal extends javax.swing.JFrame {
 
     private void ConfiguraSesion(){
         try{
+            if(txtPlayer.getText().equals("guest") || txtPlayer.getText().equals("admin"))
+                PuedeJugar=false;
+            else
+                PuedeJugar=true;
             //Pestaña Estado
-            MostrarJugadas(txtPlayer.getName());
+            Progreso.setValue(1);
+            String q1 = "SELECT FechaAlta, cashMoney FROM Player WHERE playerName = '" + txtPlayer.getText() + "';";
+            ResultSet rs = dbAccess.exQuery(q1);
+            while(rs.next()){
+                txtFechaAlta.setValue(rs.getDate("FechaAlta"));
+                Disponible.setValue(rs.getDouble("cashMoney"));
+            }
+            Progreso.setValue(2);
+            TiempoJuego.setValue(Consola.int2strTime(dbAccess.DSum("TiempoJuego","Player","playerName = '" + txtPlayer.getText() + "'")));
+            Progreso.setValue(3);
+            MostrarJugadas(txtPlayer.getText());
+            Progreso.setValue(4);
             AccionesJugador();
+            Progreso.setValue(5);
             OperacionesJugador();
             //Pestaña Valores
+            PanelAdmin.setVisible(false);
+            Botones.setVisible(false);                  //oculta el panel de botones del juego
+            PanelDetalle.setVisible(false);             //oculta PanelDetalle (jPanel de detalle de empresa)            
+            Progreso.setValue(6);
             PreparaArbol();
             //Pestaña Ranking
+            Progreso.setValue(7);
             CalcularRanking();
         } catch (Exception ex){
             System.err.println("Error en configuracion de sesion.\n"+ex.getMessage());
@@ -85,7 +154,7 @@ public class Principal extends javax.swing.JFrame {
         }
     }
     
-    public static void UpdateTimerData(){
+    public static void UpdateTimerData() throws Exception{
         /*
         UpdateData
         Actualiza el contenido de los controles que dependen de la base de datos y/o de la API
@@ -96,6 +165,8 @@ public class Principal extends javax.swing.JFrame {
             timerRanking.setString(""+timerRanking.getValue()+"/"+timerRanking.getMaximum());
             CalcularRanking();
             UpdateTimerAPI();
+            Player.AumentaMinutos(txtPlayer.getText().toString(),1);
+            TiempoJuego.setValue(Consola.int2strTime(dbAccess.DSum("TiempoJuego","Player","playerName = '" + txtPlayer.getText() + "'")));
         } else {
             timerRanking.setValue(timerRanking.getValue()+1);
         }
@@ -190,6 +261,8 @@ public class Principal extends javax.swing.JFrame {
     }
     
     private static  void OperacionesJugador(){
+        Preparado.setText("Calculando...");
+        Mensaje.setText("Recuperando operaciones del jugador " + txtPlayer.getText());
         String query = "SELECT Simbolo, Empresa, Fecha, Compra, Venta "+
                         "FROM OperacionesJugador "+
                         "WHERE PlayerName = '" + txtPlayer.getText() + "';";
@@ -198,54 +271,59 @@ public class Principal extends javax.swing.JFrame {
     }
     
     private static void CalcularRanking(){
+        Preparado.setText("Calculando...");
+        Mensaje.setText("Calculando ranking...");
         String ranking = "SELECT * FROM playersranking;";
         DefaultTableModel modelo = dbAccess.ObtenerModelo(ranking);
         Ranking.setModel(modelo);
+        Mensaje.setText("");
     }
         
-    public void MostrarDetalleSimbolo(String simbolo){
-        if(treeStocks.getLastSelectedPathComponent().toString().equals("Not classified")){
-            PanelDetalle.setVisible(true);
-            String query = "SELECT coName, coCEO, coWebsite, coDescription "
-                    +"FROM company "
-                    +"WHERE Symbol = '" + simbolo + "';";
-            try{
-                System.out.println(query);
-                
-                ResultSet rs = dbAccess.exQuery(query);
-                System.out.println("Columnas: " + rs.getMetaData().getColumnCount());
-                for(int i=1;i<=rs.getMetaData().getColumnCount();i++)
-                    System.out.println(rs.getString(i) + " / ");
-                
-                //detalleCEO.setText(rs.getString("coCEO"));
-                //detalleCEO.setText(Valores.getModel().getValueAt(Valores.getSelectedRow(),3).toString());
-                
-                //detalleDetalle.setText(rs.getString("Description"));
-                //detalleEmpresa.setText(rs.getString("coName"));
-                //detalleSimbolo.setText(simbolo);
-                //detalleWeb.setText(rs.getString("coWeb"));
-                System.out.println("Colocamos la imagen en el control.\n"+getClass().getResource(Company.getRawCompanyLogo(simbolo)).toString());
-                BufferedImage img = ImageIO.read(new URL(getClass().getResource(Company.getRawCompanyLogo(simbolo)).toString()));
-                Logotipo.setIcon(new javax.swing.ImageIcon(img.getScaledInstance(438,438,2)));
-            } catch(Exception ex){
-                System.out.println("Error en consulta: " + ex.getMessage());
-            }
+    public void MostrarDetalleSimbolo(String simbolo) throws Exception{
+        Preparado.setText("Calculando...");
+        Mensaje.setText("Leyendo datos del simbolo");
+        detalleSimbolo.setText(simbolo);
+        Progreso.setValue(0);
+        String query = "SELECT * FROM Company WHERE Symbol = '" + simbolo + "';";
+        ResultSet rs = dbAccess.exQuery(query);
+        Progreso.setValue(1);
+        while(rs.next()){
+            detalleCEO.setText(rs.getObject("coCEO").toString());
+            Progreso.setValue(2);
+            detalleEmpresa.setText(rs.getObject("coName").toString());
+            Progreso.setValue(4);
+            detalleWeb.setText(rs.getObject("coWebsite").toString());
+            Progreso.setValue(6);
+            detalleDetalle.setText(rs.getObject("coDescription").toString());
         }
+        Progreso.setValue(8);
+        //String urlImg = Company.getRawCompanyLogo(simbolo);
+        //Mensaje.setText("Localizando imagen de " + urlImg);
+        //String b = Company.getCompanyLogo(urlImg);
+        //System.out.println(b);
+//        System.out.println("Colocamos la imagen en el control.\n"+getClass().getResource(Company.getRawCompanyLogo(simbolo).toString()));
+        
+        //BufferedImage img = ImageIO.read(new URL(getClass().getResource(urlImg).toString()));
+        //Logotipo.setIcon(new javax.swing.ImageIcon(img.getScaledInstance(438,438,2)));
+        Progreso.setValue(0);
+        Mensaje.setText("");
     }
-
+    
     public  void PreparaArbol() throws Exception{
         /*
         PreparaArbol()
         Prepara la información a mostrar en el árbol
         */
-        Consola.Mensaje("Preparando Arbol");
+        Mensaje.setText("Preparando Arbol");
         treeStocks.removeAll();
         try{
-            DefaultMutableTreeNode arbol = Company.getTreeFromDB();
+            Mensaje.setText("Obteniendo información del contenido del árbol.");
+            DefaultMutableTreeNode arbol = Company.getTreeFromDB(txtPlayer.getText());
+            Mensaje.setText("Modelo de árbol obtenido.");
             treeModel = new DefaultTreeModel(arbol);
             treeModel.setRoot(arbol);
             treeStocks.setModel(treeModel);             //treeModel es el control JTree
-            System.out.println(arbol.toString());
+            //System.out.println(arbol.toString());
         } catch (Exception ex){
             System.err.println(ex.getMessage());
         }
@@ -268,11 +346,15 @@ public class Principal extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
+        jPopupMenu1 = new javax.swing.JPopupMenu();
+        jPopupMenu2 = new javax.swing.JPopupMenu();
         BarraSuperior = new javax.swing.JToolBar();
         jLabel8 = new javax.swing.JLabel();
         timerRanking = new javax.swing.JProgressBar();
         jLabel7 = new javax.swing.JLabel();
         timerAPI = new javax.swing.JProgressBar();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        cmdCloseSession = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         tabStatus = new javax.swing.JInternalFrame();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -293,21 +375,20 @@ public class Principal extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        txtTiempoJuego = new javax.swing.JTextField();
+        Disponible = new javax.swing.JFormattedTextField();
+        jLabel11 = new javax.swing.JLabel();
+        TiempoJuego = new javax.swing.JFormattedTextField();
         jScrollPane7 = new javax.swing.JScrollPane();
         Acciones = new javax.swing.JTable();
+        cmdVender = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
         tabEquities = new javax.swing.JInternalFrame();
         jPanel2 = new javax.swing.JPanel();
-        cmdRefresh = new javax.swing.JButton();
-        cmdComprar = new javax.swing.JButton();
-        txtNumAcciones = new javax.swing.JSpinner();
-        cmdVender = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         treeStocks = new javax.swing.JTree();
         jScrollPane4 = new javax.swing.JScrollPane();
         Valores = new javax.swing.JTable();
-        cmdClasificar = new javax.swing.JButton();
-        cmdDeclasificar = new javax.swing.JButton();
         PanelDetalle = new javax.swing.JPanel();
         Logotipo = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
@@ -321,11 +402,27 @@ public class Principal extends javax.swing.JFrame {
         detalleWeb = new javax.swing.JTextField();
         jScrollPane8 = new javax.swing.JScrollPane();
         detalleDetalle = new javax.swing.JTextPane();
+        Botones = new javax.swing.JPanel();
+        cmdComprar = new javax.swing.JButton();
+        lblPrecioActual = new javax.swing.JLabel();
+        txtNumAcciones = new javax.swing.JSpinner();
+        jLabel4 = new javax.swing.JLabel();
+        CosteOperacion = new javax.swing.JFormattedTextField();
+        txtPrecioActual = new javax.swing.JFormattedTextField();
+        jLabel3 = new javax.swing.JLabel();
+        DisponibleJuego = new javax.swing.JFormattedTextField();
+        PanelAdmin = new javax.swing.JDesktopPane();
+        cmdClasificar = new javax.swing.JButton();
+        cmdDeclasificar = new javax.swing.JButton();
         tabRanking = new javax.swing.JInternalFrame();
         jScrollPane5 = new javax.swing.JScrollPane();
         Ranking = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
         playerTransactions = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
+        Mensaje = new javax.swing.JTextField();
+        Progreso = new javax.swing.JProgressBar();
+        Preparado = new javax.swing.JTextField();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -342,6 +439,9 @@ public class Principal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
             }
@@ -353,13 +453,27 @@ public class Principal extends javax.swing.JFrame {
         BarraSuperior.add(jLabel8);
 
         timerRanking.setMaximum(60);
+        timerRanking.setToolTipText("Consta de 6 ciclos de 10 segundos cada uno.\nCada minuto se recalcula el ranking de jugadores.");
         BarraSuperior.add(timerRanking);
 
         jLabel7.setText("  Recálculo de la API: ");
         BarraSuperior.add(jLabel7);
 
         timerAPI.setMaximum(15);
+        timerAPI.setToolTipText("Tiene una duración de 15 minutos.\nCada vez que se completa el ciclo se recalculan los precios de las acciones.");
         BarraSuperior.add(timerAPI);
+        BarraSuperior.add(jSeparator1);
+
+        cmdCloseSession.setText("Cerrar sesión");
+        cmdCloseSession.setFocusable(false);
+        cmdCloseSession.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdCloseSession.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdCloseSession.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdCloseSessionMouseClicked(evt);
+            }
+        });
+        BarraSuperior.add(cmdCloseSession);
 
         jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         jTabbedPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -396,14 +510,19 @@ public class Principal extends javax.swing.JFrame {
         jLabel2.setText("Comprado:");
 
         txtAccionesCompradas.setEditable(false);
+        txtAccionesCompradas.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         txtComprasDinero.setEditable(false);
+        txtComprasDinero.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jTextField5.setEditable(false);
+        jTextField5.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jTextField6.setEditable(false);
+        jTextField6.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jTextField8.setEditable(false);
+        jTextField8.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jLabel5.setText("En acciones:");
 
@@ -413,7 +532,14 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel10.setText("Balance:");
 
-        txtTiempoJuego.setEditable(false);
+        Disponible.setEditable(false);
+        Disponible.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat(" #,##0.00 €"))));
+        Disponible.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+
+        jLabel11.setText("Saldo disponible:");
+
+        TiempoJuego.setEditable(false);
+        TiempoJuego.setHorizontalAlignment(javax.swing.JTextField.LEFT);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -424,39 +550,39 @@ public class Principal extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblFechaAlta)
-                            .addComponent(lblTiempoJuego, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                                .addGap(107, 107, 107)
-                                                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addComponent(txtFechaAlta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblFechaAlta)
+                                    .addComponent(lblTiempoJuego, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(txtAccionesCompradas, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                                .addComponent(txtAccionesCompradas, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(txtComprasDinero, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                        .addGap(0, 42, Short.MAX_VALUE)))
-                                .addGap(96, 96, 96))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(txtTiempoJuego, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
+                                                .addComponent(txtComprasDinero, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                                .addGap(19, 19, 19)
+                                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(Disponible)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(TiempoJuego, javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtFechaAlta, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jTextField6, txtAccionesCompradas, txtFechaAlta});
@@ -473,8 +599,12 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTiempoJuego)
-                    .addComponent(txtTiempoJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(TiempoJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Disponible, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11))
+                .addGap(8, 8, 8)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel5)
@@ -509,6 +639,17 @@ public class Principal extends javax.swing.JFrame {
         ));
         jScrollPane7.setViewportView(Acciones);
 
+        cmdVender.setText("Vender");
+        cmdVender.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdVenderMouseClicked(evt);
+            }
+        });
+
+        jLabel12.setText("Lista de movimientos");
+
+        jLabel13.setText("Acciones que posee el jugador:");
+
         javax.swing.GroupLayout tabStatusLayout = new javax.swing.GroupLayout(tabStatus.getContentPane());
         tabStatus.getContentPane().setLayout(tabStatusLayout);
         tabStatusLayout.setHorizontalGroup(
@@ -516,38 +657,33 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, tabStatusLayout.createSequentialGroup()
                 .addGroup(tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE))
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 487, Short.MAX_VALUE)
+                    .addComponent(cmdVender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
+                .addGroup(tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         tabStatusLayout.setVerticalGroup(
             tabStatusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-            .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
             .addGroup(tabStatusLayout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cmdVender))
+            .addGroup(tabStatusLayout.createSequentialGroup()
+                .addComponent(jLabel12)
+                .addGap(7, 7, 7)
+                .addComponent(jScrollPane6))
         );
 
         jTabbedPane1.addTab("Estado", tabStatus);
 
         tabEquities.setVisible(true);
-
-        cmdRefresh.setText("Refrescar");
-
-        cmdComprar.setText("Comprar");
-        cmdComprar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmdComprarMouseClicked(evt);
-            }
-        });
-
-        cmdVender.setText("Vender");
-        cmdVender.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmdVenderMouseClicked(evt);
-            }
-        });
 
         treeStocks.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -562,20 +698,6 @@ public class Principal extends javax.swing.JFrame {
             }
         });
         jScrollPane4.setViewportView(Valores);
-
-        cmdClasificar.setText("Clasificar");
-        cmdClasificar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmdClasificarMouseClicked(evt);
-            }
-        });
-
-        cmdDeclasificar.setText("A null");
-        cmdDeclasificar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmdDeclasificarMouseClicked(evt);
-            }
-        });
 
         Logotipo.setText("jLabel13");
 
@@ -624,7 +746,7 @@ public class Principal extends javax.swing.JFrame {
                             .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addGroup(PanelDetalleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(detalleSimbolo, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .addComponent(detalleSimbolo, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
                             .addComponent(detalleEmpresa))))
                 .addContainerGap())
         );
@@ -657,7 +779,127 @@ public class Principal extends javax.swing.JFrame {
                             .addGroup(PanelDetalleLayout.createSequentialGroup()
                                 .addComponent(jLabel22)
                                 .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)))))
+                            .addComponent(jScrollPane8)))))
+        );
+
+        cmdComprar.setText("Comprar");
+        cmdComprar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdComprarMouseClicked(evt);
+            }
+        });
+
+        lblPrecioActual.setText("Precio actual: ");
+
+        txtNumAcciones.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        txtNumAcciones.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                txtNumAccionesStateChanged(evt);
+            }
+        });
+
+        jLabel4.setText("Acciones: ");
+
+        CosteOperacion.setEditable(false);
+        CosteOperacion.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#,##0.00 €"))));
+        CosteOperacion.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+
+        txtPrecioActual.setEditable(false);
+        txtPrecioActual.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#,##0.00 €"))));
+        txtPrecioActual.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtPrecioActual.setToolTipText("");
+
+        jLabel3.setText("Disponible:");
+
+        DisponibleJuego.setEditable(false);
+        DisponibleJuego.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat(" #,##0.00 €"))));
+        DisponibleJuego.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+
+        javax.swing.GroupLayout BotonesLayout = new javax.swing.GroupLayout(Botones);
+        Botones.setLayout(BotonesLayout);
+        BotonesLayout.setHorizontalGroup(
+            BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(BotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cmdComprar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BotonesLayout.createSequentialGroup()
+                        .addComponent(lblPrecioActual, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(191, 191, 191))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BotonesLayout.createSequentialGroup()
+                        .addGroup(BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(BotonesLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(txtNumAcciones, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(CosteOperacion, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(DisponibleJuego)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BotonesLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(txtPrecioActual, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        BotonesLayout.setVerticalGroup(
+            BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtPrecioActual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblPrecioActual))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtNumAcciones)
+                    .addComponent(CosteOperacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(BotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(DisponibleJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addComponent(cmdComprar)
+                .addContainerGap())
+        );
+
+        cmdClasificar.setText("Clasificar");
+        cmdClasificar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdClasificarMouseClicked(evt);
+            }
+        });
+
+        cmdDeclasificar.setText("A null");
+        cmdDeclasificar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdDeclasificarMouseClicked(evt);
+            }
+        });
+
+        PanelAdmin.setLayer(cmdClasificar, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        PanelAdmin.setLayer(cmdDeclasificar, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout PanelAdminLayout = new javax.swing.GroupLayout(PanelAdmin);
+        PanelAdmin.setLayout(PanelAdminLayout);
+        PanelAdminLayout.setHorizontalGroup(
+            PanelAdminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelAdminLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(cmdDeclasificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cmdClasificar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        PanelAdminLayout.setVerticalGroup(
+            PanelAdminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelAdminLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelAdminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cmdClasificar)
+                    .addComponent(cmdDeclasificar))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -666,43 +908,32 @@ public class Principal extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Botones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3)
+                    .addComponent(PanelAdmin))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
-                        .addGap(10, 10, 10)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
-                            .addComponent(PanelDetalle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(PanelDetalle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(cmdRefresh)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdComprar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtNumAcciones, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdVender)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cmdDeclasificar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdClasificar)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cmdRefresh)
-                    .addComponent(cmdComprar)
-                    .addComponent(txtNumAcciones)
-                    .addComponent(cmdVender)
-                    .addComponent(cmdClasificar)
-                    .addComponent(cmdDeclasificar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(PanelAdmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(PanelDetalle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE))
+                        .addComponent(Botones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PanelDetalle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(2, 2, 2))
         );
 
@@ -764,11 +995,37 @@ public class Principal extends javax.swing.JFrame {
         );
         tabRankingLayout.setVerticalGroup(
             tabRankingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Ranking", tabRanking);
+
+        Mensaje.setEditable(false);
+
+        Progreso.setFocusable(false);
+
+        Preparado.setEditable(false);
+        Preparado.setText("Preparado");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(Preparado, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Mensaje)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Progreso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(Mensaje)
+                .addComponent(Preparado))
+            .addComponent(Progreso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -776,8 +1033,9 @@ public class Principal extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(BarraSuperior, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 917, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(BarraSuperior, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 917, Short.MAX_VALUE)
+                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(1, 1, 1))
         );
         layout.setVerticalGroup(
@@ -785,7 +1043,9 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(BarraSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -800,9 +1060,14 @@ public class Principal extends javax.swing.JFrame {
         el precio actual servirá para calcular el valor actual de las acciones compradas
         esta lista viene de la lista de transacciones, y se 
         */
-        try{
+        try{            
+            Progreso.setMaximum(10);
+            Progreso.setMinimum(0);
             ConfiguraInicio();
             ConfiguraSesion();
+            Progreso.setValue(0);
+            Preparado.setText("Preparado");
+            Mensaje.setText("");
         } catch(Exception ex){
             System.err.println("Error en inicializacion de pantalla.\n"+ex.getMessage());
         }
@@ -857,9 +1122,38 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_treeStocksMouseClicked
 
     private void ValoresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ValoresMouseClicked
-        // TODO add your handling code here:
-        System.out.println("Se ha seleccionado Valores: " + Valores.getValueAt(Valores.getSelectedRow() , 0).toString());
-        MostrarDetalleSimbolo(Valores.getValueAt(Valores.getSelectedRow() , 0).toString());
+        /*
+        MouseClicked
+        Evento que ocurre cada vez que se hace click con el ratón en el control Valores
+        Se tiene que:
+        - mostrar el panel Botones
+        - mostrar el panel Detalle
+        */
+        try{                                     
+            String simbolo = Valores.getValueAt(Valores.getSelectedRow(),0).toString();
+            String jugador = txtPlayer.getText();
+            System.out.println("Se ha seleccionado Valores: " + simbolo);
+            Botones.setVisible(PuedeJugar);
+            PanelDetalle.setVisible(true);
+            PanelAdmin.setVisible((txtPlayer.getText().equals("admin")));
+            MostrarDetalleSimbolo(simbolo);
+            //double valor = Double.parseDouble(Valores.getValueAt(Valores.getSelectedRow(),6).toString());
+            System.out.println("Elemento elegido: " + simbolo);
+            
+            //txtPrecioActual.setValue(Company.getCompanyDoublePrice(simbolo));
+            txtPrecioActual.setValue(dbAccess.DSum("coValue", "Company", "Symbol = '" + simbolo + "'"));
+            
+            
+            try{
+                txtNumAcciones.setValue(0);
+                DisponibleJuego.setValue(Disponible.getValue());
+            } catch(Exception ex){
+                System.err.println("Excepcion : " + ex.getMessage());
+            }
+        } catch(Exception ex){
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
     }//GEN-LAST:event_ValoresMouseClicked
 
     private void cmdComprarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdComprarMouseClicked
@@ -885,6 +1179,21 @@ public class Principal extends javax.swing.JFrame {
         playerTransactions.setVisible(true);
         MostrarJugadas(String.valueOf(Ranking.getModel().getValueAt(Ranking.getSelectedRow(),0)));
     }//GEN-LAST:event_RankingMouseClicked
+
+    private void cmdCloseSessionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdCloseSessionMouseClicked
+        // TODO add your handling code here:
+        CerrarSesion();
+    }//GEN-LAST:event_cmdCloseSessionMouseClicked
+
+    private void txtNumAccionesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_txtNumAccionesStateChanged
+        // TODO add your handling code here:
+        calcValorOperacion();
+    }//GEN-LAST:event_txtNumAccionesStateChanged
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        CerrarSesion();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -927,17 +1236,26 @@ public class Principal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private static javax.swing.JTable Acciones;
     private javax.swing.JToolBar BarraSuperior;
+    private javax.swing.JPanel Botones;
+    private javax.swing.JFormattedTextField CosteOperacion;
+    private javax.swing.JFormattedTextField Disponible;
+    private static javax.swing.JFormattedTextField DisponibleJuego;
     private javax.swing.JLabel Logotipo;
+    private static javax.swing.JTextField Mensaje;
     private static javax.swing.JTable Operaciones;
+    private javax.swing.JDesktopPane PanelAdmin;
     private javax.swing.JPanel PanelDetalle;
+    private static javax.swing.JTextField Preparado;
+    private static javax.swing.JProgressBar Progreso;
     public static javax.swing.JTable Ranking;
+    private static javax.swing.JFormattedTextField TiempoJuego;
     private javax.swing.JTable Valores;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton cmdClasificar;
+    private javax.swing.JButton cmdCloseSession;
     private javax.swing.JButton cmdComprar;
     private javax.swing.JButton cmdDeclasificar;
-    private javax.swing.JButton cmdRefresh;
     private javax.swing.JButton cmdVender;
     private java.util.List<UserInterface.Company> companyList;
     private javax.persistence.Query companyQuery;
@@ -949,12 +1267,17 @@ public class Principal extends javax.swing.JFrame {
     private javax.persistence.EntityManager entityManager;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -962,6 +1285,9 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPopupMenu jPopupMenu1;
+    private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -970,12 +1296,14 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField8;
     private javax.swing.JLabel lblFechaAlta;
+    private javax.swing.JLabel lblPrecioActual;
     private javax.swing.JLabel lblTiempoJuego;
     private javax.swing.JTable playerTransactions;
     private javax.swing.JInternalFrame tabEquities;
@@ -989,6 +1317,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField txtFechaAlta;
     private javax.swing.JSpinner txtNumAcciones;
     private static javax.swing.JLabel txtPlayer;
-    private javax.swing.JTextField txtTiempoJuego;
+    private javax.swing.JFormattedTextField txtPrecioActual;
     // End of variables declaration//GEN-END:variables
 }

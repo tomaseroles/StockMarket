@@ -120,6 +120,11 @@ public class dbAccess {
         return rs.getRow();
     }
     
+    public static double exQueryDouble(String sql, int column) throws Exception{
+        ResultSet rs = exQuery(sql);
+        return rs.getDouble(column);
+    }
+    
     public static void stClose() throws SQLException{
         /*
         This method closes the current connection to the database server
@@ -137,12 +142,41 @@ public class dbAccess {
             }
             System.out.println();
             int i=1;
+            System.out.println("--- Inicio ---");
             while(rs.next()){
-                System.out.print(rs.getObject(i) + "|\t");
+                for(i=1;i<rs.getMetaData().getColumnCount();i++){
+                    System.out.println(rs.getMetaData().getColumnLabel(i) +"\t"+ rs.getObject(i) + "|\t");
+                }
+                System.out.println();
             }
+            System.out.println("--- Fin ---");
         } catch (Exception ex){
             System.out.println("Error en rsConsole: " + ex.getMessage());
         }
         
+    }
+    
+    public static int DSum(String fieldName, String tableName, String whereCondition) throws Exception{
+        String query = "SELECT Sum(" + fieldName + ") "+
+                "FROM " + tableName + " " +
+                "WHERE (" + whereCondition + ");";
+        System.out.println(query);
+        ResultSet rs = exQuery(query);
+        int valor=0;
+        while(rs.next()){
+            valor=rs.getInt(1);
+        }
+        return valor;
+    }
+    
+    public static int DCount(String fieldName, String tableName, String whereCondition) throws Exception{
+        String query = "SELECT Count(" + fieldName + ") "+
+                "FROM " + tableName + " " + 
+                "WHERE (" + whereCondition + ");";
+        ResultSet rs = exQuery(query);
+        int valor=0;
+        while (rs.next())
+            valor = rs.getInt(1);
+        return valor;
     }
 }

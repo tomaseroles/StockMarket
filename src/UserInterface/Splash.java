@@ -20,6 +20,7 @@ import com.alee.laf.WebLookAndFeel;
 import stockmarket.Consola;
 import stockmarket.GameMain;
 import stockmarket.Player;
+import stockmarket.dbAccess;
 
 /**
  *
@@ -44,7 +45,6 @@ public class Splash extends javax.swing.JFrame {
         System.out.println("En Login");
         try{
             System.out.println("Still login: " + password);
-            
             if (Player.LogIn(usuario, password)){
                 GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
                 hAPI.start();
@@ -53,7 +53,8 @@ public class Splash extends javax.swing.JFrame {
                 p.setUser(usuario);
                 setVisible(false);
             } else {
-                System.out.println("Usuario y/o contraseña incorrectos");
+                //System.out.println("Usuario y/o contraseña incorrectos");
+                Consola.DialogBox("Usuario y/o contraseña incorrectos","Autenticacion de usuario");
             }
         } catch(Exception ex){
             System.err.println("Error en autenticación de usuario" + ex.getMessage());

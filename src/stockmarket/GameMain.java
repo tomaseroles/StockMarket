@@ -40,8 +40,11 @@ public class GameMain {
                 try {
                     System.out.println("Hilo hAccesoAPI dormido");
                     sleep(msMin);       //duerme durante 6 segundos
+                    
                     Principal.UpdateTimerData();
                 } catch (InterruptedException ex) {
+                    Logger.getLogger(GameMain.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (Exception ex) {
                     Logger.getLogger(GameMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
