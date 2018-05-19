@@ -16,11 +16,10 @@
  */
 package UserInterface;
 
-import com.alee.laf.WebLookAndFeel;
+
 import stockmarket.Consola;
 import stockmarket.GameMain;
 import stockmarket.Player;
-import stockmarket.dbAccess;
 
 /**
  *
@@ -46,17 +45,19 @@ public class Splash extends javax.swing.JFrame {
         try{
             System.out.println("Still login: " + password);
             if (Player.LogIn(usuario, password)){
-                GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
-                hAPI.start();
+                //Consola.Info("Usuario autenticado","Login");
                 Principal p = new Principal();
                 p.setVisible(true);
                 p.setUser(usuario);
                 setVisible(false);
+                GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
+                hAPI.start();
             } else {
                 //System.out.println("Usuario y/o contraseña incorrectos");
-                Consola.DialogBox("Usuario y/o contraseña incorrectos","Autenticacion de usuario");
+                Consola.Warning("Usuario y/o contraseña incorrectos","Autenticacion de usuario");
             }
         } catch(Exception ex){
+            Consola.Error("Usuario: " + usuario + " Password: " + password, titulo);
             System.err.println("Error en autenticación de usuario" + ex.getMessage());
         }
     }
@@ -126,7 +127,7 @@ public class Splash extends javax.swing.JFrame {
         cmdSignIn.setBorder(null);
         cmdSignIn.setBorderPainted(false);
         cmdSignIn.setContentAreaFilled(false);
-        cmdSignIn.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cmdSignIn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         cmdSignIn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cmdSignInMouseClicked(evt);
@@ -150,10 +151,11 @@ public class Splash extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(70, 70, 70)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(cmdGuestEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(txtPassword)
                     .addComponent(txtUsername)
@@ -175,9 +177,9 @@ public class Splash extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(4, 4, 4)
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(155, 155, 155)
+                .addGap(144, 144, 144)
                 .addComponent(cmdSignup)
-                .addGap(33, 33, 33)
+                .addGap(44, 44, 44)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdGuestEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -255,7 +257,6 @@ public class Splash extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Splash().setVisible(true);
-                WebLookAndFeel.initializeManagers ();
             }
         });
     }

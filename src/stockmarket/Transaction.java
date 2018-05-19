@@ -16,27 +16,45 @@
  */
 package stockmarket;
 
+import javax.swing.SpinnerNumberModel;
+
 /**
  *
  * @author Tomas
  */
 public class Transaction {
-    public static void newTransaction(String symbol, String Player, int equities, int operation){
-        String query1, query2;
-        double valorOperacion = equities*Double.parseDouble(Company.getCompanyPrice(symbol));
+    public static SpinnerNumberModel getSpinnerModel(double value, double min, double max, double step){
+        /*
+        getSpinnerModel (value, min, max, step)
+        */
+        return new SpinnerNumberModel(value, min, max, step);
+    }
+    
+    public static void newTransaction(String symbol, String Player, double equities, int operation) throws Exception{
+        String query1, query2, query3;
+        System.out.println("Transaccion");
+        double valorOperacion = equities*Company.getCompanyDoublePrice(symbol);
+        System.out.println("El valor de la operacion es de: " + valorOperacion);
         query1 = "INSERT INTO transaction(Symbol, PlayerName, Equities, syPrice, Multiplier) "
                 +"VALUES('" + symbol + "', "
                 +       "'" + Player + "', "
                 +       ""  + equities + ", "
-                +       "'" + Double.parseDouble(Company.getCompanyPrice(symbol)) + "', "
+                +       "" + Company.getCompanyDoublePrice(symbol) + ", "
                 +       ""  + operation + ");"; 
+        System.out.println(query1);
         query2 = "UPDATE Player "+
                 "SET cashMoney = cashMoney - " + valorOperacion + " "+
-                    "moneyInvested = moneyInvested + " + valorOperacion + " " +
                 "WHERE playerName = '" + Player + "';";
+        System.out.println(query2);
+        query3 = "UPDATE Company "+
+                "SET sharesOutstanding = sharesOutstanding - " + equities + " "+
+                "WHERE Symbol = '" + symbol + "';";
+        System.out.println(query3);
+        // añadir la resta de acciones de la compañia o la suma en caso de venta, para variar el numero de acciones disponibles en mercado
         try{
             dbAccess.ExecuteNQ(query1);
             dbAccess.ExecuteNQ(query2);
+            dbAccess.ExecuteNQ(query3);
         } catch(Exception ex){
             System.out.println("Error en registro de transaccion: " + ex.getMessage() + "\n" + query1 + "\n" + query2);
         }

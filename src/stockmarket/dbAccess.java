@@ -9,11 +9,14 @@ public class dbAccess {
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final String localDB_URL = "jdbc:mysql://localhost:3307/stockmarket";
     //static final String localDB_URL = "jdbc:mysql://localhost:3307/stockmarket";
-    static final String remoteDB_URL= "jdbc:mysql://tomforhost:3307/stockmarket";
+    static final String remoteDB_URL= "jdbc:mysql://estructuradedatos.com:3306/tomas";
     
     static final String USER = "root";
     static final String PASS = "eroles";
     static final String PORT = "3307";
+    
+    static final String usrRemoto = "tomas";
+    static final String pasRemoto = "Coromines/";
     private static Connection conn;
     private static Statement state;
     
@@ -157,6 +160,9 @@ public class dbAccess {
     }
     
     public static int DSum(String fieldName, String tableName, String whereCondition) throws Exception{
+        System.out.println(fieldName);
+        System.out.println(tableName);
+        System.out.println(whereCondition);
         String query = "SELECT Sum(" + fieldName + ") "+
                 "FROM " + tableName + " " +
                 "WHERE (" + whereCondition + ");";
@@ -166,6 +172,7 @@ public class dbAccess {
         while(rs.next()){
             valor=rs.getInt(1);
         }
+        
         return valor;
     }
     

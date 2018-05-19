@@ -1,10 +1,17 @@
 package stockmarket;
 
-import UserInterface.Principal;
 import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class Player {
+    public static double CalcularValorTotal(String jugador) throws Exception{
+        double valor;
+        valor = dbAccess.DSum("cashMoney", "Player", "playerName = '"+jugador+"'")-
+                dbAccess.DSum("Compra", "operacionesjugador", "PlayerName='"+jugador+"'")*+
+                dbAccess.DSum("Venta","operacionesjugador","PlayerName='"+jugador+"'");
+        return valor;
+    }
+    
     public static void UpdateEquities(String jugador){
         System.out.println("Recuperar nuevos valores de las acciones del jugador desde la API...");
         String query = "SELECT Symbol, Sum(equities*multiplier) AS Neto "+
@@ -117,25 +124,14 @@ public class Player {
             salida= true;
         } else{
             try{
-                String query = "SELECT playerName " +
-                               "FROM player " +
-                               "WHERE ((playerName = '" + username + "') AND (plPassword = md5('" + password + "')));";
-                ResultSet rs = dbAccess.exQuery(query);
-                while(rs.next()){
-                    if(rs.getString(1).equals(username)){
-                        String q2 = "UPDATE player "
-                                +   "SET isAlive = 1 "
-                                +   "WHERE playerName = '" + username + "';";
-                        dbAccess.ExecuteNQ(q2);
-                        salida=true;
-                    } else{
-                        salida=false;
-                    }
+                if(dbAccess.DCount("playerName", "Player", " playerName = '" + username + "' AND plPassword = md5('" + password + "')")==1){
+                    salida=true;
+                } else{
+                    salida=false;
                 }
             } catch(Exception ex){
                 System.err.println("Error en autenticación de usuario: " + ex.toString());
             }
-            //return (dbAccess.exQuery(query).getRow()==1);
         }
         return salida;
     }

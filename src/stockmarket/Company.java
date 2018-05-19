@@ -1,31 +1,47 @@
 package stockmarket;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Esta clase gestiona los datos de la tabla Company, así como los métodos que trabajan con esos datos
+ * @author Tomas Eroles
+ */
 public class Company {
+    /**
+     * Es el prefijo por defecto para todos los accesos a la API
+     */
     static String urlPrefix="https://api.iextrading.com/1.0/stock/";
         
-    //operative methods    
+    /**
+     * Obtiene los datos de la empresa en la API
+     * @param symbol es el simbolo de la empresa en la API
+     * @return un string JSON con los datos de la empresa
+     */
     public static String getCompanyData(String symbol){
         return ClienteREST.request(urlPrefix+symbol+"/company");
     }
     
+    /**
+     * Obtiene estadísticas de la empresa: Capitalización y Número de acciones
+     * Estos dos datos se usan para conocer el número de acciones que tiene la empresa
+     * Sólo se graban en la tabla de empresa cuando se da de alta para cotización
+     * El número de acciones aumenta o disminuye cuando se producen transacciones
+     * @param symbol
+     * @return un string JSON con los datos estadísticos de la empresa
+     */
     public static String getCompanyStats(String symbol){
         return ClienteREST.request(urlPrefix+symbol+"/stats");
     }
     
+    /**
+     * Muestra en la consola los datos obtenidos sobre las estadísticas de la empresa
+     * @param symbol es el símbolo de la empresa
+     * @throws Exception 
+     */
     public static void ShowCompanyStats(String symbol) throws Exception{
         String txt=getCompanyStats(symbol);
         JSONObject obj = new JSONObject(txt);
@@ -35,6 +51,12 @@ public class Company {
         System.out.println("Acciones      : " + obj.getString("sharesOutstandig"));
     }
     
+    /**
+     * Muestra en la consola los datos de la empresa que vienen de la API:
+     * 
+     * @param symbol es el símbolo de la empresa
+     * @throws Exception 
+     */
     public static void ShowCompanyData(String symbol) throws Exception{
         String txt=getCompanyData(symbol);
         JSONObject obj = new JSONObject(txt);
@@ -94,57 +116,6 @@ public class Company {
         String url = obj.getString("url");
         
         return url;
-    }
-    
-    public static void ShowCompanyLogo(String symbol) throws Exception{
-        /*
-        This method has to be changed.
-        When writing this comment, the method gets the url for a logo of the company, and downloads the file
-        It has to be changed to only return the url.
-        This url will be returned in two ways:
-        - in the console context, to write the url
-        - in the swing context to watch the logo in a form
-        */
-        String txt = getCompanyLogo(symbol);
-        JSONObject obj = new JSONObject(txt);
-        String url = obj.getString("url");
-        
-        System.out.println("Logo:      " + url);
-        System.out.println("Descarga de la imagen:");
-        String folder = "descargas/";
-        String name = symbol+".jpg";
-        
-        
-        try{
-            File dir = new File(folder);
-            if(!dir.exists())
-                if(!dir.mkdir())
-                    return;         //no se pudo crear la carpeta de destino
-
-            File file = new File(folder+name);
-            URLConnection conn = new URL(url).openConnection();
-            conn.connect();
-            System.out.println("Empezando descarga...");
-            System.out.println(">>URL:    "+url);
-            System.out.println(">>Nombre: "+name);
-
-            InputStream in = conn.getInputStream();
-            OutputStream out = new FileOutputStream(file);
-
-            int b=0;
-            while(b!=-1){
-                b=in.read();
-                if(b!=-1)
-                    out.write(b);
-            }
-            out.close();
-            in.close();
-            System.out.println("Descarga finalizada.");
-        } catch (MalformedURLException e){
-            System.out.println("la url: " + url + " no es valida!");
-        } catch (IOException e){
-            e.printStackTrace();
-        }
     }
     
     public static String[] getCompletePath(String node){
@@ -217,18 +188,18 @@ public class Company {
         //System.out.println("Arbol: " + tree.toString());
         return tree;
     }
+    
+    /**
+     * Suspende la cotización de una empresa poniendo a cero el campo Cotiza
+     * @param symbol es el símbolo de la empresa
+     * @throws Exception 
+     */
     public static void FillDetailsToNull(String symbol) throws Exception{
-        /*
-        This method sets the details of Market, Sector and Industry to null in the database for a given symbol
-        */
         String query = "UPDATE company "
-                + "SET coMarket = NULL, "
-                + "coSector = NULL, "
-                + "coIndustry = NULL, "
-                + "coCEO = NULL, "
-                + "coWebsite = NULL "
+                + "SET Cotiza=0 "
                 + "WHERE Symbol = '" + symbol + "'";
         dbAccess.ExecuteNQ(query);
+        Consola.Info("Se ha suspendido la cotización de la empresa " + symbol, "Suspender cotización");
     }
     
     public static void FillDetailsFromAPI(String symbol) throws Exception{
@@ -252,19 +223,27 @@ public class Company {
             descripcion = descripcion.replaceAll("\'", "");
         }
         System.out.println(descripcion);
-        String query = "UPDATE company "
-                     + "SET coCEO = '"      + obj.getString("CEO") + "', "
-                     +     "coWebsite = '"  + obj.getString("website") + "', "
-                     +     "coMarket = '"   + obj.getString("exchange") + "', " 
-                     +     "coSector = '"   + obj.getString("sector") + "', "
-                     +     "coIndustry = '" + obj.getString("industry") + "', "
-                     +     "coDescription = '" + descripcion + "', "
-                     +     "Capitalization = " + obj2.getLong("marketcap") + ", "
-                     +     "sharesOutstanding = " + obj2.getLong("sharesOutstanding") + ", "
-                     +     "coValue = '" + obj3.getDouble("price") + "' " 
-                     + "WHERE Symbol = '"   + symbol + "';";
+        String query;
+        if(dbAccess.DCount("*", "company", "Cotiza=0 AND coCEO Is Null AND coWebsite Is Null AND coMarket Is Null and coSector Is Null AND coIndustry Is Null")==1){
+            query = "UPDATE company "
+                         + "SET coCEO = '"      + obj.getString("CEO") + "', "
+                         +     "coWebsite = '"  + obj.getString("website") + "', "
+                         +     "coMarket = '"   + obj.getString("exchange") + "', " 
+                         +     "coSector = '"   + obj.getString("sector") + "', "
+                         +     "coIndustry = '" + obj.getString("industry") + "', "
+                         +     "coDescription = '" + descripcion + "', "
+                         +     "Capitalization = " + obj2.getLong("marketcap") + ", "
+                         +     "sharesOutstanding = " + obj2.getLong("sharesOutstanding") + ", "
+                         +     "coValue = '" + obj3.getDouble("price") + "' " 
+                         +     "Cotiza = 1, "
+                         + "WHERE Symbol = '"   + symbol + "';";            
+        } else{
+            query = "UPDATE company "+
+                    "SET Cotiza = 1 WHERE Symbol = '" + symbol + "';";
+        }
         System.out.println(query);
         dbAccess.ExecuteNQ(query);
+        Consola.Info("Se ha activado la cotización de " + symbol, "Activar cotización");
     }
     
     public static void getCompanyDB(String symbol) throws Exception{

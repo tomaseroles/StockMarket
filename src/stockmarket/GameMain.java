@@ -2,9 +2,9 @@ package stockmarket;
 
 import UserInterface.Principal;
 import UserInterface.Splash;
-import com.alee.managers.WebLafManagers;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.UIManager;
 
 public class GameMain {
     public static boolean verbose=true;
@@ -18,6 +18,7 @@ public class GameMain {
         
         @Override
         public void run(){
+            
             splash.setVisible(true);
         }
         
@@ -52,8 +53,6 @@ public class GameMain {
     }
 
     public static void main(String[] args) throws Exception{
-        WebLafManagers.initialize();
-
         Thread principal = new hPrincipal();
         principal.start();
     }

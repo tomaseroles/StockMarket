@@ -16,8 +16,6 @@
  */
 package UserInterface;
 
-import com.alee.laf.WebLookAndFeel;
-import com.alee.managers.WebLafManagers;
 import stockmarket.Player;
 import stockmarket.dbAccess;
 
@@ -197,7 +195,6 @@ public class UserData extends javax.swing.JFrame {
             public void run() {
                 
                 new UserData().setVisible(true);
-                WebLookAndFeel.initializeManagers ();
             }
         });
     }
