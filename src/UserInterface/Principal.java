@@ -5,14 +5,10 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.chart.XYChart;
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import org.knowm.xchart.QuickChart;
-import org.knowm.xchart.SwingWrapper;
 import stockmarket.dbAccess;
 import stockmarket.Company;
 import stockmarket.Consola;
@@ -198,11 +194,7 @@ public class Principal extends javax.swing.JFrame {
         String jugador=txtPlayer.getText();
         try{
             //parametros generales: sólo los jugadores pueden jugar
-            if(jugador.equals("guest") || jugador.equals("admin"))
-                PuedeJugar=false;
-            else{
-                PuedeJugar=true;
-            }
+            PuedeJugar = !((jugador.equals("guest0")) || (jugador.equals("admin")));
             
             //Pestaña Estado ---------------------------------------------------
             String q1 = "SELECT FechaAlta FROM Player WHERE playerName = '" + jugador + "';";
@@ -781,6 +773,7 @@ public class Principal extends javax.swing.JFrame {
         Balance.setFont(new java.awt.Font("sansserif", 0, 14)); // NOI18N
         jPanel11.add(Balance);
 
+        EstadoIzquierdo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         EstadoIzquierdo.setName(""); // NOI18N
 
         javax.swing.GroupLayout EstadoIzquierdoLayout = new javax.swing.GroupLayout(EstadoIzquierdo);
@@ -1486,17 +1479,7 @@ public class Principal extends javax.swing.JFrame {
         try{            
             ConfiguraInicio();
             ConfiguraSesion();
-            
-            //------------------------------------------------------------------
-            double[] xData = new double[] {0.0,1.0,2.0};
-            double[] yData = new double[] {2.0,1.0,0.0};
-            org.knowm.xchart.XYChart chart = QuickChart.getChart("Sample Chart","X","Y","y(x)",xData, yData);
-
-            EstadoIzquierdo.
-            new SwingWrapper(chart).displayChart();
-            chart.
-            //------------------------------------------------------------------
-            
+                        
         } catch(Exception ex){
             System.err.println("Error en inicializacion de pantalla.\n"+ex.getMessage());
         }
