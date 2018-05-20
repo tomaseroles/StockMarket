@@ -160,21 +160,7 @@ public class Principal extends javax.swing.JFrame {
             timerRanking.setMaximum(6);                //sets the maximum value for timerRanking
             timerAPI.setMinimum(0);                     //sets the minimum value for timerAPI
             timerAPI.setMaximum(15);                    //sets the maximum value for timerAPI
-            //pestaña estado -------------------------------------------------------------------
-            //calcular fecha de alta
-            String queryFA = "SELECT FechaAlta, TiempoJuego "+
-                            "FROM player "+
-                            "WHERE playerName = '" + txtPlayer.getText() + "'";
-            ResultSet rs = dbAccess.exQuery(queryFA);
-            txtFechaAlta.setText(rs.getDate("FechaAlta").toString());
-            TiempoJuego.setText((Consola.int2strTime(rs.getInt("TiempoJuego"))));
             
-            //pestaña valores ------------------------------------------------------------------
-            cmdDeclasificar.setEnabled(txtPlayer.getText().equals("admin"));
-            cmdClasificar.setEnabled(txtPlayer.getText().equals("admin"));
-            cmdComprar.setEnabled(PuedeJugar);
-            cmdVender.setEnabled(PuedeJugar);
-            AccionesCompra.setEnabled(PuedeJugar);
             //pestaña Ranking ------------------------------------------------------------------
             playerTransactions.setVisible(false);       //oculta playerTransactions (jTable de transacciones)
             CalcularRanking();
@@ -197,6 +183,7 @@ public class Principal extends javax.swing.JFrame {
             PuedeJugar = !((jugador.equals("guest0")) || (jugador.equals("admin")));
             
             //Pestaña Estado ---------------------------------------------------
+            //calcular fecha de alta
             String q1 = "SELECT FechaAlta FROM Player WHERE playerName = '" + jugador + "';";
             ResultSet rs = dbAccess.exQuery(q1);
             while(rs.next()){
@@ -380,7 +367,7 @@ public class Principal extends javax.swing.JFrame {
                 "ORDER BY Riqueza DESC;";
         DefaultTableModel modelo = dbAccess.ObtenerModelo(ranking);
         Ranking.setModel(modelo);
-        
+        Preparado.setText("Preparado");
         Mensaje.setText("");
     }
         
@@ -444,8 +431,6 @@ public class Principal extends javax.swing.JFrame {
         buttonGroup2 = new javax.swing.ButtonGroup();
         jPopupMenu1 = new javax.swing.JPopupMenu();
         jPopupMenu2 = new javax.swing.JPopupMenu();
-        aluminiumButtonUI1 = new com.jtattoo.plaf.aluminium.AluminiumButtonUI();
-        aluminiumButtonUI2 = new com.jtattoo.plaf.aluminium.AluminiumButtonUI();
         BarraSuperior = new javax.swing.JToolBar();
         jLabel8 = new javax.swing.JLabel();
         timerRanking = new javax.swing.JProgressBar();
@@ -784,7 +769,7 @@ public class Principal extends javax.swing.JFrame {
         );
         EstadoIzquierdoLayout.setVerticalGroup(
             EstadoIzquierdoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 66, Short.MAX_VALUE)
+            .addGap(0, 31, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
@@ -869,7 +854,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout EstadoLayout = new javax.swing.GroupLayout(Estado.getContentPane());
@@ -1746,8 +1731,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField ValorTotal;
     private javax.swing.JTable Valores;
     private static javax.swing.JFormattedTextField VentasDinero;
-    private com.jtattoo.plaf.aluminium.AluminiumButtonUI aluminiumButtonUI1;
-    private com.jtattoo.plaf.aluminium.AluminiumButtonUI aluminiumButtonUI2;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton cmdClasificar;
