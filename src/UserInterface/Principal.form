@@ -234,7 +234,7 @@
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="txtPlayer" max="32767" attributes="0"/>
-                                  <Component id="jPanel6" max="32767" attributes="0"/>
+                                  <Component id="PanelJugador" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -245,14 +245,14 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="txtPlayer" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Component id="jPanel6" max="32767" attributes="0"/>
+                              <Component id="PanelJugador" max="32767" attributes="0"/>
                               <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
                   </Layout>
                   <SubComponents>
-                    <Container class="javax.swing.JPanel" name="jPanel6">
+                    <Container class="javax.swing.JPanel" name="PanelJugador">
 
                       <Layout>
                         <DimensionLayout dim="0">
@@ -416,7 +416,7 @@
                                 <Component class="javax.swing.JFormattedTextField" name="TiempoJuego">
                                   <Properties>
                                     <Property name="editable" type="boolean" value="false"/>
-                                    <Property name="horizontalAlignment" type="int" value="2"/>
+                                    <Property name="horizontalAlignment" type="int" value="0"/>
                                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                                       <Font name="sansserif" size="18" style="0"/>
                                     </Property>
@@ -431,6 +431,7 @@
                                     <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
                                       <Format subtype="0" type="1"/>
                                     </Property>
+                                    <Property name="horizontalAlignment" type="int" value="0"/>
                                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                                       <Font name="sansserif" size="18" style="0"/>
                                     </Property>
@@ -451,7 +452,7 @@
                                     <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">
                                       <Format format=" #,##0.00 &#x20ac;" subtype="-1" type="4"/>
                                     </Property>
-                                    <Property name="horizontalAlignment" type="int" value="4"/>
+                                    <Property name="horizontalAlignment" type="int" value="0"/>
                                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                                       <Font name="sansserif" size="18" style="0"/>
                                     </Property>
@@ -539,7 +540,7 @@
                                 </Property>
                                 <Property name="horizontalAlignment" type="int" value="4"/>
                                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="sansserif" size="14" style="0"/>
+                                  <Font name="sansserif" size="36" style="1"/>
                                 </Property>
                               </Properties>
                               <AuxValues>
@@ -554,7 +555,7 @@
                                 </Property>
                                 <Property name="horizontalAlignment" type="int" value="4"/>
                                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="sansserif" size="14" style="0"/>
+                                  <Font name="sansserif" size="36" style="1"/>
                                 </Property>
                               </Properties>
                               <AuxValues>
@@ -577,7 +578,7 @@
                                 </Property>
                                 <Property name="horizontalAlignment" type="int" value="4"/>
                                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="sansserif" size="14" style="0"/>
+                                  <Font name="sansserif" size="36" style="1"/>
                                 </Property>
                               </Properties>
                               <AuxValues>
@@ -592,7 +593,7 @@
                                 </Property>
                                 <Property name="horizontalAlignment" type="int" value="4"/>
                                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="sansserif" size="14" style="0"/>
+                                  <Font name="sansserif" size="36" style="1"/>
                                 </Property>
                               </Properties>
                               <AuxValues>
@@ -622,7 +623,7 @@
                                 </Property>
                                 <Property name="horizontalAlignment" type="int" value="4"/>
                                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="sansserif" size="14" style="0"/>
+                                  <Font name="sansserif" size="36" style="1"/>
                                 </Property>
                               </Properties>
                               <AuxValues>
@@ -726,10 +727,10 @@
                               <Component id="PanelAdmin" alignment="0" max="32767" attributes="0"/>
                               <Component id="jScrollPane3" alignment="0" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jScrollPane4" pref="513" max="32767" attributes="0"/>
                               <Component id="PanelDetalle" max="32767" attributes="0"/>
+                              <Component id="jScrollPane4" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -743,7 +744,7 @@
                               <Component id="jScrollPane3" pref="289" max="32767" attributes="0"/>
                               <Component id="jScrollPane4" pref="0" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
                                   <Component id="PanelAdmin" min="-2" max="-2" attributes="0"/>
@@ -850,7 +851,7 @@
                                       <Group type="102" attributes="0">
                                           <Component id="detalleSimbolo" min="-2" pref="94" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="detalleEmpresa" max="32767" attributes="0"/>
+                                          <Component id="detalleEmpresa" pref="250" max="32767" attributes="0"/>
                                       </Group>
                                       <Component id="detalleCEO" max="32767" attributes="0"/>
                                       <Component id="detalleWeb" max="32767" attributes="0"/>
@@ -946,62 +947,63 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="cmdComprar" max="32767" attributes="0"/>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="lblPrecioActual" pref="165" max="32767" attributes="0"/>
-                                      <EmptySpace min="-2" pref="191" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="jLabel4" max="32767" attributes="0"/>
-                                          <Component id="jLabel3" pref="94" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                  <Component id="jLabel4" max="32767" attributes="0"/>
+                                                  <Component id="jLabel3" pref="94" max="32767" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace pref="8" max="32767" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                  <Component id="AccionesCompra" max="32767" attributes="0"/>
+                                                  <Component id="MultiplosCompra" pref="76" max="32767" attributes="0"/>
+                                              </Group>
+                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" attributes="0">
+                                              <Component id="lblPrecioActual" max="32767" attributes="0"/>
+                                              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                                          </Group>
                                       </Group>
-                                      <EmptySpace max="32767" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="AccionesCompra" pref="129" max="32767" attributes="0"/>
-                                          <Component id="MultiplosCompra" max="32767" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="txtPrecioActual" min="-2" pref="103" max="-2" attributes="0"/>
+                                          <Component id="DisponibleJuego" min="-2" pref="103" max="-2" attributes="0"/>
+                                          <Component id="CosteOperacion" min="-2" pref="103" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="CosteOperacion" pref="103" max="32767" attributes="0"/>
-                                          <Component id="DisponibleJuego" max="32767" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                      <Component id="txtPrecioActual" min="-2" pref="103" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="txtPrecioActual" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblPrecioActual" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="AccionesCompra" alignment="3" max="32767" attributes="0"/>
                                   <Component id="CosteOperacion" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="DisponibleJuego" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="MultiplosCompra" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Component id="cmdComprar" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="cmdComprar" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -1098,9 +1100,9 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="cmdDeclasificar" max="32767" attributes="0"/>
+                              <Component id="cmdDeclasificar" pref="151" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="cmdClasificar" max="32767" attributes="0"/>
+                              <Component id="cmdClasificar" pref="136" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -1369,9 +1371,9 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane7" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <Component id="jScrollPane7" max="32767" attributes="0"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1450,7 +1452,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="lblPrecioActual1" min="-2" pref="82" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="txtPrecioActual1" min="-2" pref="91" max="-2" attributes="0"/>
+                          <Component id="PrecioVenta" min="-2" pref="91" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -1474,7 +1476,7 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="txtPrecioActual1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="PrecioVenta" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="lblPrecioActual1" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="AccionesVenta" alignment="3" max="32767" attributes="0"/>
@@ -1519,7 +1521,7 @@
                     <Property name="horizontalAlignment" type="int" value="4"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JFormattedTextField" name="txtPrecioActual1">
+                <Component class="javax.swing.JFormattedTextField" name="PrecioVenta">
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
                     <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor">

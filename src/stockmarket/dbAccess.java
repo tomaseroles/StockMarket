@@ -5,6 +5,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Esta clase gestiona todo lo relacionado con acceso a base de datos
+ * @author Tomas
+ */
 public class dbAccess {
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final String localDB_URL = "jdbc:mysql://localhost:3307/stockmarket";
@@ -21,16 +25,13 @@ public class dbAccess {
     private static Statement state;
     
     
+    /**
+    * Obtiene un modelo de datos a partir de una consulta SQL dada, y devuelve un DefaultTableModel
+    * El DefaultTableModel es un modelo listo para ser aplicado a cualqiuer JTable
+    * @param query es la consulta que se realiza a la base de datos para obtener el modelo
+    * @return un objeto DefaultTableModel, el modelo básico de un JTable
+    */
     public static DefaultTableModel ObtenerModelo(String query){
-        /*
-        ObtenerModelo
-        Obtiene un modelo de datos a partir de una consulta SQL dada
-        Parametros:
-        - query: es una expresión SQL válida
-        Salida:
-        - DefaultTableModel: es un modelo de acceso a datos con los nombres de columna y con los datos
-          listo para asociarlo a cualquier JTable
-        */
         DefaultTableModel modelo=new DefaultTableModel();
         try{
             ResultSet rs = dbAccess.exQuery(query);
@@ -47,16 +48,13 @@ public class dbAccess {
         } catch(Exception ex){
             System.out.println("Error al calcular modelo de \n"+query+"\n"+ex.getMessage());
         }
-        
-        rsConsole(query);
         return modelo;
     }
-    
+
+    /**
+     * Realiza una conexión a la Base de Datos a patir de los datos constantes de conexión
+     */
     public static void Conectar(){
-        /*
-        This method connects to the db server
-        */
-        //Consola.Mensaje("Inicializando el objeto");
         try {
             Class.forName("com.mysql.jdbc.Connection");
             conn = DriverManager.getConnection(localDB_URL,USER,PASS);
@@ -70,32 +68,36 @@ public class dbAccess {
         }
     }
     
+    /**
+     * Ejecuta una sentencia SQL que no devuelve valores
+     * @param query es una sentencia SQL tipo Update, Insert o Delete
+     * @throws Exception 
+     */
     public static void ExecuteNQ(String query) throws Exception{
-        /*
-        This method executes a SQL statement against the db server, that does not have to return values
-        It is used to INSERT, UPDATE and DELETE statements
-        */
-        //Consola.Mensaje("Entrada en función ejecutar");
         Conectar();
         state.execute(query);
     }
             
+    /**
+     * Devuelve un ResultSet como consecuencia de una consulta SELECT a una Base de Datos
+     * @param sql es una consulta SQL Select válida
+     * @return un ResultSet
+     * @throws Exception 
+     */
     public static ResultSet exQuery(String sql) throws Exception{
-        /*
-        This method returns the result of a query lauched against the db server
-        */
-        ResultSet rs=null;
-        //conn.close();
-        //Consola.Mensaje("Dentro de exQuery. Conectando...");
+        ResultSet rs;
         Conectar();
-        //Consola.Mensaje("Conectado. Creando Statement");
         state = (Statement) conn.createStatement();
-        //Consola.Mensaje("Statement creado. Ejecutando consulta...");
         rs = state.executeQuery(sql);
-        //Consola.Mensaje("Consulta ejecutada. Devolviendo resultado. Fila: " + rs.getRow());
         return rs;
     }
     
+    /**
+     * Devuelve el número de registros de un ResultSet
+     * @param rs es un ResultSet
+     * @return es el número de registros del RS de entrada
+     * @throws Exception 
+     */
     public static int length(ResultSet rs) throws Exception{
         int i = 0;
         while(rs.next())
@@ -103,14 +105,17 @@ public class dbAccess {
         return i;
     }
     
+    /**
+     * Devuelve un valor resultado de una consulta de conteo con solo un campo
+     * @param sql es una consulta SQL
+     * @return el número resultado de la consulta
+     * @throws Exception 
+     */
     public static int exQueryCount(String sql) throws Exception{
         ResultSet rs=null;
         
-        //Consola.Mensaje("Dentro de exQueryCount. Conectando.");
         Conectar();
-        //Consola.Mensaje("Creando Statement.");
         state = (Statement) conn.createStatement();
-        //Consola.Mensaje("Ejecutando query: " + sql);
         try{
             rs=state.executeQuery(sql);
             System.out.println(sql);
@@ -127,14 +132,20 @@ public class dbAccess {
         ResultSet rs = exQuery(sql);
         return rs.getDouble(column);
     }
-    
+
+    /**
+     * Cierra la conexión con la BBDD
+     * @throws SQLException 
+     */    
     public static void stClose() throws SQLException{
-        /*
-        This method closes the current connection to the database server
-        */
         state.close();
     }
     
+    /**
+     * Realiza una consulta SQL, obtiene un ResultSet y lo escribe en la consola
+     * Método escrito sólo para propósitos de prueba y comprobación de resultados.
+     * @param sql 
+     */
     public static void rsConsole(String sql){
         try{
             System.out.println("Resultado para \n" + sql);
@@ -158,7 +169,15 @@ public class dbAccess {
         }
         
     }
-    
+
+    /**
+     * Obtiene la suma de un valor de un campo. Con los parámetros dados construye una consulta y revuelve el valor pedido
+     * @param fieldName es el campo con valores numéricos a sumar
+     * @param tableName es el nombre de la tabla que contiene el campo
+     * @param whereCondition es la condición que permite discrimiar registros
+     * @return la suma de los elementos dados por la condición de la consulta
+     * @throws Exception 
+     */
     public static int DSum(String fieldName, String tableName, String whereCondition) throws Exception{
         System.out.println(fieldName);
         System.out.println(tableName);
@@ -176,6 +195,14 @@ public class dbAccess {
         return valor;
     }
     
+    /**
+     * Obtiene la cuenta de valores dados por una consulta
+     * @param fieldName es el nombre del campo que se usará para contar
+     * @param tableName es el nombre de la tabla
+     * @param whereCondition es la condición que permitirá obtener el filtro
+     * @return
+     * @throws Exception 
+     */
     public static int DCount(String fieldName, String tableName, String whereCondition) throws Exception{
         String query = "SELECT Count(" + fieldName + ") "+
                 "FROM " + tableName + " " + 

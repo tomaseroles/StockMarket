@@ -12,11 +12,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.*;
 
+/**
+ * Esta es la clase que se encarga de comunicarse con la librería Java-JSON
+ * @author Tomas
+ */
 public class RestAPI {
     private static String urlStock="";
         
-    //funciones que recuperan informacion de la api
-    public static Company getCompanyData(String alias){
+    /**
+     * Obtiene el JSON con los datos de la entrada company de la API
+     * Deprecated??
+     * @param alias es el símbolo de la compañía
+     * @return 
+     */
+    public static Company aaagetCompanyData(String alias){
         Company mycom = new Company();
         String connStr = mycom.urlPrefix + alias + "/company";
         System.out.println(getJSON(connStr));
