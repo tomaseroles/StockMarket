@@ -1,37 +1,14 @@
-## Welcome to GitHub Pages
+# StockMarket
 
-You can use the [editor on GitHub](https://github.com/tomaseroles/StockMarket/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+StockMarket es un juego multijugador en tiempo real, con entorno gráfico, desarrollado en Java que simula operaciones de compra-venta de acciones en bolsa.
+El programa utiliza datos de entrada que provienen de un servicio proporcionado por la empresa [iextrading](https://iextrading.com/developer/docs/) con una API muy potente que proporciona gran cantidad de datos, de los cuales algunos se han usado en la aplicación.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+El juego utiliza una base de datos hospedada en un servidor externo en el que se almacenan datos acerca de los jugadores, las empresas que cotizan en bolsa y las transacciones de los jugadores con esas acciones.
 
-### Markdown
+Los datos de las empresas se obtienen de la API, y los jugadores y las transacciones, mediante el programa al dar de alta a los usuarios y sus transacciones.
+Los usuarios del juego están organizados en tres categorías: administrador, jugador e invitado.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+La información inicialmente disponible en la BBDD contiene los símbolos y nombres de las empresas, que pueden ser habilitados o suspendidos para cotización por el administrador.
+El usuario invitado (o guest) puede acceder a la aplicación sin autenticación y sólo puede acceder a la lista de empresas habilitadas y al ranking de jugadores.
+Los jugadores pueden realizar operaciones de compra-venta de acciones y acceder a la información disponible de las empresas.
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/tomaseroles/StockMarket/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
