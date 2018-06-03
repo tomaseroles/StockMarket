@@ -16,49 +16,71 @@
  */
 package UserInterface;
 
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import stockmarket.Consola;
-import stockmarket.GameMain;
 import stockmarket.Player;
+import stockmarket.dbAccess;
 
 /**
- *
+ * Clase que gestiona la pantalla inicial y de log de usuario, así como la creacion de nuevos usuarios y cambios de contraseña
  * @author Tomas
  */
 public class Splash extends javax.swing.JFrame {
-
     /**
      * Creates new form Splash
      */
     public Splash() {
-        setUndecorated(true);
+        //setUndecorated(true);
         initComponents();
     }
     
-    /* ---------------------------------------------------------------------------
-    Funciones desarrolladas
-    --------------------------------------------------------------------------  */ 
-
+    /**
+     * Comprueba si la combinación usuario+contraseña es correcta e inicia la partida si es así
+     * @param usuario nombre de usuario
+     * @param password contraseña introducida
+     * @throws Exception 
+     */
     private void Login(String usuario, String password) throws Exception{
         String titulo = "Autenticación";
-        System.out.println("En Login");
         try{
-            System.out.println("Still login: " + password);
             if (Player.LogIn(usuario, password)){
-                //Consola.Info("Usuario autenticado","Login");
-                Principal p = new Principal();
-                p.setVisible(true);
-                p.setUser(usuario);
-                setVisible(false);
-                GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
-                hAPI.start();
+                FormularioPrincipal.setLoggedIn(true);
+                FormularioPrincipal.setJugador(usuario);
+                dispose();
             } else {
-                //System.out.println("Usuario y/o contraseña incorrectos");
                 Consola.Warning("Usuario y/o contraseña incorrectos","Autenticacion de usuario");
             }
         } catch(Exception ex){
             Consola.Error("Usuario: " + usuario + " Password: " + password, titulo);
             System.err.println("Error en autenticación de usuario" + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Configura la pantalla para cambiar la contraseña
+     */
+    public void cfgCambiarPassword(){
+        CambioPassword.setVisible(!CambioPassword.isVisible());
+        PanelGeneral.setEnabled(!PanelGeneral.isEnabled());
+        if(PanelNuevoUsuario.isVisible()){
+            cmdSignIn.doClick();
+            PanelNuevoUsuario.setVisible(false);
+        }        
+    }
+    
+    /**
+     * Configura la disposición de pantalla para cuando se hace click en el botón MasOpciones
+     */
+    public void MasOpciones(){
+        PanelMasOpciones.setVisible(!PanelMasOpciones.isVisible());
+        if(CambioPassword.isVisible()){
+            changePassword.doClick();
+            CambioPassword.setVisible(false);
+        }
+        if(PanelNuevoUsuario.isVisible()){
+            cmdSignIn.doClick();
+            PanelNuevoUsuario.setVisible(false);
         }
     }
     
@@ -71,20 +93,48 @@ public class Splash extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        PanelFoto = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        cmdSignup = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        txtUsername = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        txtPassword = new javax.swing.JPasswordField();
+        jPanel1 = new javax.swing.JPanel();
+        PanelGeneral = new javax.swing.JPanel();
         txtCloseWindow = new javax.swing.JLabel();
-        cmdSignIn = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        labelUsername = new javax.swing.JLabel();
+        txtUsername = new javax.swing.JTextField();
+        labelPassword = new javax.swing.JLabel();
+        txtPassword = new javax.swing.JPasswordField();
+        cmdSignup = new javax.swing.JButton();
+        MasOpciones = new javax.swing.JToggleButton();
+        PanelNuevoUsuario = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        labelCorreo1 = new javax.swing.JLabel();
+        email1 = new javax.swing.JTextField();
+        labelNombreUsuario = new javax.swing.JLabel();
+        NombreUsuario = new javax.swing.JTextField();
+        labelNewPassword1 = new javax.swing.JLabel();
+        password1 = new javax.swing.JPasswordField();
+        AltaNuevo = new javax.swing.JButton();
+        CambioPassword = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        labelCorreo = new javax.swing.JLabel();
+        email = new javax.swing.JTextField();
+        labelNewPassword = new javax.swing.JLabel();
+        password = new javax.swing.JPasswordField();
+        jLabel2 = new javax.swing.JLabel();
+        password2 = new javax.swing.JPasswordField();
+        NewPassword = new javax.swing.JButton();
+        PanelMasOpciones = new javax.swing.JPanel();
+        changePassword = new javax.swing.JToggleButton();
         cmdGuestEnter = new javax.swing.JButton();
+        cmdSignIn = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAlwaysOnTop(true);
         setBackground(new java.awt.Color(0, 0, 0));
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         setUndecorated(true);
+        setPreferredSize(new java.awt.Dimension(817, 500));
+        setType(java.awt.Window.Type.POPUP);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -92,29 +142,36 @@ public class Splash extends javax.swing.JFrame {
         });
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/UserInterface/stockmarketbig.jpg"))); // NOI18N
-        jLabel1.setText("jLabel1");
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/UserInterface/splash.png"))); // NOI18N
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jLabel1.setBorder(null);
+        jLabel1.setFocusable(false);
+        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jLabel1.setMaximumSize(new java.awt.Dimension(300, 300));
+        jLabel1.setMinimumSize(new java.awt.Dimension(300, 300));
+        jLabel1.setOpaque(true);
+        jLabel1.setRequestFocusEnabled(false);
+        jLabel1.setVerifyInputWhenFocusTarget(false);
 
-        cmdSignup.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        cmdSignup.setText("Sign Up");
-        cmdSignup.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmdSignupMouseClicked(evt);
-            }
-        });
+        javax.swing.GroupLayout PanelFotoLayout = new javax.swing.GroupLayout(PanelFoto);
+        PanelFoto.setLayout(PanelFotoLayout);
+        PanelFotoLayout.setHorizontalGroup(
+            PanelFotoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelFotoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        PanelFotoLayout.setVerticalGroup(
+            PanelFotoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelFotoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+        );
 
-        jLabel2.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel2.setLabelFor(txtUsername);
-        jLabel2.setText("Username:");
+        PanelGeneral.setEnabled(false);
 
-        txtUsername.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-
-        jLabel3.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jLabel3.setLabelFor(txtPassword);
-        jLabel3.setText("Password:");
-
-        txtPassword.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-
+        txtCloseWindow.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
         txtCloseWindow.setText("X");
         txtCloseWindow.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -122,100 +179,264 @@ public class Splash extends javax.swing.JFrame {
             }
         });
 
-        cmdSignIn.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        cmdSignIn.setText("Sign In");
-        cmdSignIn.setBorder(null);
-        cmdSignIn.setBorderPainted(false);
-        cmdSignIn.setContentAreaFilled(false);
-        cmdSignIn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        cmdSignIn.addMouseListener(new java.awt.event.MouseAdapter() {
+        jPanel2.setLayout(new java.awt.GridLayout(3, 2));
+
+        labelUsername.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        labelUsername.setLabelFor(txtUsername);
+        labelUsername.setText("Nombre de usuari@:");
+        jPanel2.add(labelUsername);
+
+        txtUsername.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jPanel2.add(txtUsername);
+
+        labelPassword.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        labelPassword.setLabelFor(txtPassword);
+        labelPassword.setText("Contraseña:");
+        jPanel2.add(labelPassword);
+
+        txtPassword.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jPanel2.add(txtPassword);
+
+        cmdSignup.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        cmdSignup.setText("Entrar");
+        cmdSignup.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cmdSignInMouseClicked(evt);
+                cmdSignupMouseClicked(evt);
+            }
+        });
+        jPanel2.add(cmdSignup);
+
+        MasOpciones.setText("Más opciones >");
+        MasOpciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                MasOpcionesMouseClicked(evt);
+            }
+        });
+        jPanel2.add(MasOpciones);
+
+        javax.swing.GroupLayout PanelGeneralLayout = new javax.swing.GroupLayout(PanelGeneral);
+        PanelGeneral.setLayout(PanelGeneralLayout);
+        PanelGeneralLayout.setHorizontalGroup(
+            PanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelGeneralLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(txtCloseWindow))
+            .addGroup(PanelGeneralLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        PanelGeneralLayout.setVerticalGroup(
+            PanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelGeneralLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtCloseWindow)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        PanelNuevoUsuario.setEnabled(false);
+
+        jPanel3.setLayout(new java.awt.GridLayout(3, 2));
+
+        labelCorreo1.setLabelFor(email);
+        labelCorreo1.setText("Correo electrónico:");
+        jPanel3.add(labelCorreo1);
+
+        email1.setToolTipText("Entrar correo electrónico para verificar");
+        jPanel3.add(email1);
+
+        labelNombreUsuario.setText("Nombre de usuari@:");
+        jPanel3.add(labelNombreUsuario);
+        jPanel3.add(NombreUsuario);
+
+        labelNewPassword1.setLabelFor(password);
+        labelNewPassword1.setText("Contraseña:");
+        jPanel3.add(labelNewPassword1);
+        jPanel3.add(password1);
+
+        AltaNuevo.setText("Darse de alta");
+        AltaNuevo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                AltaNuevoMouseClicked(evt);
             }
         });
 
-        cmdGuestEnter.setText("Enter as Guest");
-        cmdGuestEnter.setBorderPainted(false);
-        cmdGuestEnter.setContentAreaFilled(false);
-        cmdGuestEnter.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        javax.swing.GroupLayout PanelNuevoUsuarioLayout = new javax.swing.GroupLayout(PanelNuevoUsuario);
+        PanelNuevoUsuario.setLayout(PanelNuevoUsuarioLayout);
+        PanelNuevoUsuarioLayout.setHorizontalGroup(
+            PanelNuevoUsuarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelNuevoUsuarioLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelNuevoUsuarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(AltaNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        PanelNuevoUsuarioLayout.setVerticalGroup(
+            PanelNuevoUsuarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelNuevoUsuarioLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(AltaNuevo)
+                .addContainerGap())
+        );
+
+        jPanel4.setLayout(new java.awt.GridLayout(3, 2));
+
+        labelCorreo.setLabelFor(email);
+        labelCorreo.setText("Correo electrónico:");
+        jPanel4.add(labelCorreo);
+
+        email.setToolTipText("Entrar correo electrónico para verificar");
+        jPanel4.add(email);
+
+        labelNewPassword.setLabelFor(password);
+        labelNewPassword.setText("Nueva contraseña:");
+        jPanel4.add(labelNewPassword);
+        jPanel4.add(password);
+
+        jLabel2.setText("Nueva contraseña 2:");
+        jPanel4.add(jLabel2);
+        jPanel4.add(password2);
+
+        NewPassword.setText("Establecer nueva contraseña");
+        NewPassword.setToolTipText("Para cambiar la contraseña hay que introducir el nombre de usuario, la contraseña actual, el correo electrónico del usuario y la nueva contraseña.");
+        NewPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NewPasswordMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout CambioPasswordLayout = new javax.swing.GroupLayout(CambioPassword);
+        CambioPassword.setLayout(CambioPasswordLayout);
+        CambioPasswordLayout.setHorizontalGroup(
+            CambioPasswordLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CambioPasswordLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(CambioPasswordLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(NewPassword, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        CambioPasswordLayout.setVerticalGroup(
+            CambioPasswordLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CambioPasswordLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(NewPassword))
+        );
+
+        PanelMasOpciones.setEnabled(false);
+        PanelMasOpciones.setLayout(new java.awt.GridLayout(1, 0));
+
+        changePassword.setText("Cambiar contraseña");
+        changePassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                changePasswordMouseClicked(evt);
+            }
+        });
+        PanelMasOpciones.add(changePassword);
+
+        cmdGuestEnter.setText("Entrar como invitad@");
+        cmdGuestEnter.setToolTipText("Entrar al juego con opciones limitadas");
         cmdGuestEnter.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cmdGuestEnterMouseClicked(evt);
             }
         });
+        PanelMasOpciones.add(cmdGuestEnter);
+
+        cmdSignIn.setText("Darse de alta");
+        cmdSignIn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cmdSignInMouseClicked(evt);
+            }
+        });
+        PanelMasOpciones.add(cmdSignIn);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(PanelMasOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+            .addComponent(PanelNuevoUsuario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(CambioPassword, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(PanelGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(PanelGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(PanelNuevoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(CambioPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addComponent(PanelMasOpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(70, 70, 70)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(cmdGuestEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(txtPassword)
-                    .addComponent(txtUsername)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(cmdSignup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(30, 30, 30)
-                .addComponent(txtCloseWindow, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(PanelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(layout.createSequentialGroup()
-                .addGap(80, 80, 80)
-                .addComponent(jLabel2)
-                .addGap(4, 4, 4)
-                .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
-                .addComponent(jLabel3)
-                .addGap(4, 4, 4)
-                .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(144, 144, 144)
-                .addComponent(cmdSignup)
-                .addGap(44, 44, 44)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cmdSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdGuestEnter, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))
-            .addComponent(txtCloseWindow)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelFoto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Lanza la comprobación de validez del usuario+contraseña cuando se clica en el botón SignUp
+     * @param evt 
+     */
     private void cmdSignupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdSignupMouseClicked
-        // TODO add your handling code here:
         try{
-            System.out.println("Usuario:    " + txtUsername.getText());
-            System.out.println("Contraseña: " + String.copyValueOf(txtPassword.getPassword())) ;
             Login(txtUsername.getText(),String.copyValueOf(txtPassword.getPassword()));
         } catch (Exception ex){
             System.err.println("Error de autenticación.\n"+ex.getMessage());
         }
     }//GEN-LAST:event_cmdSignupMouseClicked
 
-    private void cmdSignInMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdSignInMouseClicked
-        // TODO add your handling code here:
-        UserData ud = new UserData();
-        ud.setVisible(true);
-    }//GEN-LAST:event_cmdSignInMouseClicked
-
+    /**
+     * Prepara la apariencia de la pantalla en el momentod de cargarse
+     * @param evt 
+     */
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         // TODO add your handling code here:
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null);                //centrar formulario
+        CambioPassword.setVisible(false);
+        PanelNuevoUsuario.setVisible(false);
+        PanelMasOpciones.setVisible(false);
     }//GEN-LAST:event_formWindowOpened
 
+    /**
+     * Cierra la ventana y abandona el programa
+     * @param evt 
+     */
     private void txtCloseWindowMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtCloseWindowMouseClicked
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_txtCloseWindowMouseClicked
 
+    /**
+     * Entrada como guest cuando se clica el botón "Entrar como guest"
+     * @param evt 
+     */
     private void cmdGuestEnterMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdGuestEnterMouseClicked
         // TODO add your handling code here:
         try{
@@ -225,6 +446,107 @@ public class Splash extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_cmdGuestEnterMouseClicked
+
+    private void changePasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changePasswordMouseClicked
+        cfgCambiarPassword();
+
+    }//GEN-LAST:event_changePasswordMouseClicked
+
+    private void MasOpcionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_MasOpcionesMouseClicked
+        // TODO add your handling code here:
+        MasOpciones();
+    }//GEN-LAST:event_MasOpcionesMouseClicked
+
+    /**
+     * Prepara la pantalla para crear un nuevo usuario
+     * @param evt 
+     */
+    private void cmdSignInMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdSignInMouseClicked
+        // TODO add your handling code here:
+        PanelNuevoUsuario.setVisible(!PanelNuevoUsuario.isVisible());
+        //PanelGeneral.setEnabled(!PanelGeneral.isEnabled());
+        if(CambioPassword.isVisible()){
+            changePassword.doClick();
+            CambioPassword.setVisible(false);
+        }
+    }//GEN-LAST:event_cmdSignInMouseClicked
+
+    /**
+     * Crea un nuevo usuario, comprobando antes si la información necesaria introducida es correcta
+     * @param evt 
+     */
+    private void AltaNuevoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AltaNuevoMouseClicked
+        try {
+            // Verificar si se han entrado los datos de nueva alta
+            System.out.println("email1: " + (email1.getText().length()==0));
+            if((email1.getText().length()==0) || (NombreUsuario.getText().length()==0) || (password1.getPassword().length==0)){
+                Consola.Warning("Los datos introducidos son incorrectos o falta alguno.", "Nuevo usuario");
+                System.err.println("Error de alta de usuario");
+            } else{
+                boolean altaOK;
+                altaOK=Player.Register(email1.getText(), NombreUsuario.getText(), String.copyValueOf(password1.getPassword()));
+                System.out.println("Resultado de operacion de alta: " + altaOK);
+                if(altaOK==true){
+                    Consola.Info("Usuario creado correctamente", "Crear usuario");
+                    cmdSignIn.doClick();
+                    PanelNuevoUsuario.setVisible(false);
+                    email1.setText(null);
+                    NombreUsuario.setText(null);
+                    password1.setText(null);
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Splash.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_AltaNuevoMouseClicked
+
+    /**
+     * Cambio de la contraseña del usuario.
+     * Verifica si se han entrado los datos suficientes, si el correo contiene @, si el password repetido es correcto y en caso afirmativo actualiza
+     * @param evt 
+     */
+    private void NewPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NewPasswordMouseClicked
+        //todos los datos necesarios están entrados
+        boolean entered=((txtUsername.getText().length()>0) && 
+                        String.copyValueOf(txtPassword.getPassword()).length()>0 && 
+                        email.getText().length()>0 && 
+                        String.copyValueOf(password.getPassword()).length()>0 &&
+                        String.copyValueOf(password2.getPassword()).length()>0  
+                        );
+        //comprobar si es correo
+        boolean isEmail = (Player.isEmail(email.getText()));
+        //comprobar contraseñas
+        boolean pwdEq = (String.copyValueOf(password.getPassword()).equals(String.copyValueOf(password2.getPassword())));
+        //comprobar si el user y pswd existen
+        String filtro = "playerName = '" + txtUsername.getText() + "' AND "+
+                        "plPassword = '" + String.copyValueOf(txtPassword.getPassword()) + "' AND " +
+                        "plEmail    = '" + email.getText() + "'";
+        try {
+            boolean usrOk = (dbAccess.DCount("playerName","player",filtro)==1);
+        } catch (Exception ex) {
+            Logger.getLogger(Splash.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if(entered && isEmail && pwdEq){
+            try {
+                String query = "UPDATE Player " +
+                        "SET Password = md5('" + String.copyValueOf(password.getPassword()) + "') " +
+                        "WHERE PlayerName = '" + txtUsername.getText() + "'";
+                dbAccess.ExecuteNQ(query);
+                Consola.Info("Se ha cambiado la contraseña", "Cambiar contraseña");
+                if(CambioPassword.isVisible()){
+                    changePassword.doClick();
+                    CambioPassword.setVisible(false);
+                }
+            } catch (Exception ex) {
+                Logger.getLogger(Splash.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            String mensaje="Para cambiar la contraseña hay que indicar todos los datos del formulario.";
+            String titulo ="Cambiar contraseña";
+            Consola.Error(mensaje, titulo);
+        }
+        
+    }//GEN-LAST:event_NewPasswordMouseClicked
 
     /**
      * @param args the command line arguments
@@ -262,15 +584,40 @@ public class Splash extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AltaNuevo;
+    private javax.swing.JPanel CambioPassword;
+    private javax.swing.JToggleButton MasOpciones;
+    private javax.swing.JButton NewPassword;
+    private javax.swing.JTextField NombreUsuario;
+    private javax.swing.JPanel PanelFoto;
+    private javax.swing.JPanel PanelGeneral;
+    private javax.swing.JPanel PanelMasOpciones;
+    private javax.swing.JPanel PanelNuevoUsuario;
+    private static javax.swing.JToggleButton changePassword;
     private javax.swing.JButton cmdGuestEnter;
-    private javax.swing.JButton cmdSignIn;
+    private javax.swing.JToggleButton cmdSignIn;
     private javax.swing.JButton cmdSignup;
+    private static javax.swing.JTextField email;
+    private static javax.swing.JTextField email1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JLabel labelCorreo;
+    private javax.swing.JLabel labelCorreo1;
+    private javax.swing.JLabel labelNewPassword;
+    private javax.swing.JLabel labelNewPassword1;
+    private javax.swing.JLabel labelNombreUsuario;
+    private javax.swing.JLabel labelPassword;
+    private javax.swing.JLabel labelUsername;
+    private javax.swing.JPasswordField password;
+    private javax.swing.JPasswordField password1;
+    private javax.swing.JPasswordField password2;
     private javax.swing.JLabel txtCloseWindow;
     private javax.swing.JPasswordField txtPassword;
-    private javax.swing.JTextField txtUsername;
+    private static javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 
 }

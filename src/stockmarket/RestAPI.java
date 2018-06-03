@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package stockmarket;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -21,7 +16,7 @@ public class RestAPI {
         
     /**
      * Obtiene el JSON con los datos de la entrada company de la API
-     * Deprecated??
+     * @deprecated 
      * @param alias es el símbolo de la compañía
      * @return 
      */
@@ -32,6 +27,11 @@ public class RestAPI {
         return mycom;
     }
     
+    /**
+     * Obtiene un string JSON dado por un parámetro de entrada
+     * @param givenString es la consulta a realiar a la API
+     * @return el string json obtenido
+     */
     public static String getJSON(String givenString){
         /*
         This function gets the complete JSON string given by the urlStock string
@@ -55,6 +55,12 @@ public class RestAPI {
         return urlStock;
     }
     
+    /**
+     * Compone una cadena a partir de una consulta a la API
+     * @param cadena es la cadena a consultar a la API
+     * @return una cadena resultado de consultar a la API
+     * @throws Exception 
+     */
     public static String clienteREST(String cadena) throws Exception {
         URL url = new URL(cadena);
         URLConnection urlConn = url.openConnection();

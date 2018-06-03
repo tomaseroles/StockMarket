@@ -1,17 +1,35 @@
 package stockmarket;
 
 import java.sql.ResultSet;
-import java.util.Scanner;
 
+/**
+ * Esta clase incluye todos los métodos referentes al jugador
+ * @author Tomas
+ */
 public class Player {
+    /**
+     * Calculo del valor total del capital del jugador (cash + invertido)
+     * Si el usuario es admin o guest, se calcula el capital del total de jugadores
+     * @param jugador es el nombre del jugador
+     * @return el capital total del jugador
+     * @throws Exception 
+     */
     public static double CalcularValorTotal(String jugador) throws Exception{
         double valor;
-        valor = dbAccess.DSum("cashMoney", "Player", "playerName = '"+jugador+"'")-
-                dbAccess.DSum("Compra", "operacionesjugador", "PlayerName='"+jugador+"'")*+
-                dbAccess.DSum("Venta","operacionesjugador","PlayerName='"+jugador+"'");
+        String filtro;
+        if(jugador.equals("admin") || jugador.equals("guest"))
+            filtro = "playerName = '"+jugador+"'";
+        else
+            filtro="";
+        valor = dbAccess.DSum("cashMoney+investMoney", "Player", filtro);
         return valor;
     }
     
+    /**
+     * Obtiene una lista de acciones del jugador dado, para cada una de ellas obtiene el nuevo valor del precio por acción en la API y actualiza la BBDD.
+     * Esta acción se ejecuta mediante hilos, y tiene lugar una vez cada 15 minutos mientras el usuario está activo
+     * @param jugador  es el jugador del cual se va a hacer la comprobación
+     */
     public static void UpdateEquities(String jugador){
         System.out.println("Recuperar nuevos valores de las acciones del jugador desde la API...");
         String query = "SELECT Symbol, Sum(equities*multiplier) AS Neto "+
@@ -34,91 +52,47 @@ public class Player {
         }
     }
 
-    public static void Register(String email, String name, String password) throws Exception{
-        /*
-        This method creates a new user using verified data such a non repeated username and a valid email.
-        This method may be called from the GUI or from the console method.
-        After receiveing the verified parameters, the method creates a sql sentence and executes it by calling
-        the ExecuteNQ method from the dbAccess class
-        
-        Parameters:
-        email: a valid email (String)
-        name:  a non duplicated username (String)
-        password: a password
-        */
-        
-        String sqlAction;
+    /**
+     * Este método comprueba si existe un usuario dado por un nombre.
+     * Si no existe, da de alta un nuevo jugador en la base de datos y comprueba si se ha dado de alta correctamente
+     * Puede ser llamado desde la interfaz gráfica o desde consola
+     * 
+     * @param email: es una dirección de correo electrónico
+     * @param name:  un nombre de usuario
+     * @param password: la contraseña
+     * @return un valor booleano indicando si la operación ha tenido éxito
+    */
+    public static boolean Register(String email, String name, String password) throws Exception{
+        boolean salida=false;
+        if(dbAccess.DCount("playerName","player","playerName = '" + name + "'")==0){
+            String sqlAction;
 
-        sqlAction = "INSERT INTO player (playerName, plEmail, plPassword) ";
-        sqlAction+= "VALUES ('" + name + "', '" + email + "', md5('" + password + "'));";
-        
-        Consola.Mensaje(sqlAction);
-        dbAccess.ExecuteNQ(sqlAction);
-    }
-    
-    public static void Register() throws Exception{
-        /*
-        This method uses the console to create a new user.
-        The method reads the username, email and password, checks if the username and the password are repeateds
-        If both 3 inputs are correct, executes the Overrided method Register to create the new user.
-        This method has no input parameters.
-        */
-        Scanner sc = new Scanner(System.in);
-        
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-        while(!isEmail(email)){
-            System.out.print("The provided email is not correct. Enter a valid email to continue:");
-            email = sc.nextLine();
-        }
-        while(emailDuplicated(email)){
-            System.out.print("This email already exists. Enter a diffent email:");
-            email=sc.nextLine();
-        }
-        System.out.print("Nombre de usuario: ");
-        String nombre = sc.nextLine();
-        while(usrNameDuplicate(nombre)){
-            System.out.print("Username duplicated. Choose another name: ");
-            nombre = sc.nextLine();
-        }
-        System.out.print("Contraseña: ");
-        String passw = sc.nextLine();
-        
-        Register(email,nombre,passw);
-    }
-    
-    public static void LogIn() throws Exception{
-        /*
-        This method asks for user data (username and password) to enter a valid session
-        */
-        String username;
-        String password;
-        Scanner sc = new Scanner(System.in);
+            sqlAction = "INSERT INTO player (playerName, plEmail, plPassword, FechaAlta) ";
+            sqlAction+= "VALUES ('" + name + "', '" + email + "', md5('" + password + "'), curdate());";
 
-        
-        System.out.print("Nombre de usuario: ");
-        username = sc.nextLine();
-        System.out.print("Enter your password: ");
-        password = sc.nextLine();
-        
-        if (LogIn(username,password)){
-            Consola.Mensaje("Usuario validado. Sesion iniciada.");
-            GameMain.playerName=username;
+            System.out.println(sqlAction);
+            dbAccess.ExecuteNQ(sqlAction);
+            if(dbAccess.DCount("playerName", "player", "playerName = '" + name + "'")==1){
+                System.out.println("Usuario " + name + " dado de alta.");
+                salida=true;
+            } else {
+                System.out.println("No se ha podido dar de alta al usuario " + name);
+            }
         } else {
-            Consola.Mensaje("Usuario no existe.");
+            Consola.Warning("El jugador especificado ya existe.", "Nuevo jugador");
+            salida=false;
         }
-    }
+        return salida;
+    }    
     
+    /**
+     * Valida la entrada de un usuario comprobando si existe su nombre y contraseña en la BBDD
+     * @param username es el nombre de usuario
+     * @param password es la contraseña
+     * @return verdadero si existe la combinación, y falso en caso contrario
+     * @throws Exception 
+     */
     public static boolean LogIn(String username, String password) throws Exception{
-        /*
-        Este metodo valida si el usuario/contraseña existen en la BBDD.
-        Parametros:
-        - username (String). Nombre de usuario dado
-        - password (String). Contraseña introducida
-        Devuelve
-        - boolean: verdadero si es correcto, falso si no es correcto
-        */
-        
         boolean salida=false;
         if(username.equals("guest") || (username.equals("admin") && (password.equals("admin")))){
             salida= true;
@@ -136,14 +110,25 @@ public class Player {
         return salida;
     }
         
+    /**
+     * Devuelve verdadero si es un correo electrónico(si contiene el carácter '@')
+     * @param email es el string a comprobar
+     * @return 
+     */
     public static boolean isEmail(String email){
         return (email.contains("@"));
     }
     
+    /**
+     * Devuelve verdadero si el nombre de usuario está duplicado en la base de datos
+     * @param uname nombre de usuario a comprobar
+     * @return devuelve verdadero si está repetido
+     * @throws Exception 
+     */
     public static boolean usrNameDuplicate(String uname) throws Exception{
         String query = "SELECT COUNT(*) AS Contador FROM player WHERE playerName = '" + uname + "';";
         boolean salida=true;
-        Consola.Mensaje(query);
+        System.out.println(query);
         ResultSet rs = dbAccess.exQuery(query);
         while(rs.next()){
             salida = (rs.getInt("Contador")!=0);
@@ -151,34 +136,31 @@ public class Player {
         return salida;
     }
     
+    /**
+     * Devuelve verdadero si el correo electrónico dado está repetido en la tabla de usuarios
+     * @param email correo electrónico a comprobar
+     * @return devuelve verdadero si está repetido
+     * @throws Exception 
+     */
     public static boolean emailDuplicated(String email) throws Exception{
         String query = "SELECT COUNT(*) AS Contador FROM player WHERE plEmail = '" + email + "';";
         boolean salida=true;
-        Consola.Mensaje(query);
+        System.out.println(query);
         ResultSet rs = dbAccess.exQuery(query);
         while(rs.next()){
             salida = (rs.getInt("Contador")!=0);
         }
         return salida;
     }
-    
-    public static void ListUsers() throws Exception{
-        /*
-        This methods list the users in the console
-        */
-        String query = "SELECT playerName, plEmail, plPassword, cashMoney, moneyInvested FROM player ";
-        ResultSet rs = dbAccess.exQuery(query);
-        while(rs.next()){
-            Consola.Mensaje("Plajer name: " + rs.getString("playerName"));
-            Consola.Mensaje("Player email:" + rs.getString("plEmail"));
-            Consola.Mensaje("Password:    " + rs.getString("plPassword"));
-            Consola.Mensaje("");
-        }
-    }
-    
+        
+    /**
+     * Suma minutos a la cuenta del jugador en la base de datos
+     * @param jugador es el jugador que va a acumular los minutos
+     * @param cantidad es la cantidad de minutos que hay que añadir (por defecto 1, pero se pone con variable por si se quiere cambiar más adelante)
+     * @throws Exception 
+     */
     public static void AumentaMinutos(String jugador, int cantidad) throws Exception{
         String query = "UPDATE Player SET TiempoJuego = TiempoJuego + " + cantidad + " WHERE PlayerName = '" + jugador + "';";
         dbAccess.ExecuteNQ(query);
     }
-    
 }

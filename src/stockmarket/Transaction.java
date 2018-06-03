@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2018 Tomas
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package stockmarket;
 
 import javax.swing.SpinnerNumberModel;
@@ -34,9 +18,6 @@ public class Transaction {
      * @return un objeto SpinnerNumberModel listo para aplicarse en cualquier Spinner
      */
     public static SpinnerNumberModel getSpinnerModel(double value, double min, double max, double step){
-        /*
-        getSpinnerModel (value, min, max, step)
-        */
         return new SpinnerNumberModel(value, min, max, step);
     }
     
@@ -65,7 +46,8 @@ public class Transaction {
                 +       ""  + operation + ");"; 
         System.out.println(query1);
         query2 = "UPDATE Player "+
-                "SET cashMoney = cashMoney - " + valorOperacion + " "+
+                "SET cashMoney = cashMoney - " + valorOperacion + ", " +
+                    "investMoney = investMoney + " + valorOperacion + " " +
                 "WHERE playerName = '" + Player + "';";
         System.out.println(query2);
         query3 = "UPDATE Company "+
@@ -77,7 +59,7 @@ public class Transaction {
             dbAccess.ExecuteNQ(query2);
             dbAccess.ExecuteNQ(query3);
         } catch(Exception ex){
-            System.out.println("Error en registro de transaccion: " + ex.getMessage() + "\n" + query1 + "\n" + query2);
+            System.out.println("Error en registro de transaccion: " + ex.getMessage() + "\n" + query1 + "\n" + query2 + "\n" + query3);
         }
     }
 }

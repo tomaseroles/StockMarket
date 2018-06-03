@@ -17,7 +17,7 @@
 package stockmarket;
 
 /**
- *
+ * Esta clase se ocupa de la gestión de las empresas que vienen de la API
  * @author Tomas
  */
 public class Companies {
