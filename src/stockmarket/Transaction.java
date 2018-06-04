@@ -31,7 +31,7 @@ public class Transaction {
      * @param Player Nombre del jugador que realiza la operación
      * @param equities Número de acciones compradas o vendidas
      * @param operation Tipo de operación: -1 compra, 1 venta (multiplicador)
-     * @throws Exception 
+     * @throws Exception cuando ocurre un error en alguna de las consultas a la BBDD
      */
     public static void newTransaction(String symbol, String Player, double equities, int operation) throws Exception{
         String query1, query2, query3;

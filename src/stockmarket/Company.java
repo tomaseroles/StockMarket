@@ -30,7 +30,7 @@ public class Company {
      * Estos dos datos se usan para conocer el número de acciones que tiene la empresa
      * Sólo se graban en la tabla de empresa cuando se da de alta para cotización
      * El número de acciones aumenta o disminuye cuando se producen transacciones
-     * @param symbol
+     * @param symbol es el símbolo que se desea consultar
      * @return un string JSON con los datos estadísticos de la empresa
      */
     public static String getCompanyStats(String symbol){
@@ -40,7 +40,7 @@ public class Company {
     /**
      * Muestra en la consola los datos obtenidos sobre las estadísticas de la empresa
      * @param symbol es el símbolo de la empresa
-     * @throws Exception 
+     * @throws Exception cuando no se puede obtener conexión y/o la información es errónea
      */
     public static void ShowCompanyStats(String symbol) throws Exception{
         String txt=getCompanyStats(symbol);
@@ -55,7 +55,7 @@ public class Company {
      * Muestra en la consola los datos de la empresa que vienen de la API:
      * 
      * @param symbol es el símbolo de la empresa
-     * @throws Exception 
+     * @throws Exception Cuando no se puede obtener conexión
      */
     public static void ShowCompanyData(String symbol) throws Exception{
         String txt=getCompanyData(symbol);
@@ -85,7 +85,7 @@ public class Company {
      * Obtiene un valor en formato double a partir de un string JSON que viene de la API y que contiene el precio de la acción
      * @param symbol es el simbolo que se consulta a la API
      * @return el valor en formato double 
-     * @throws JSONException 
+     * @throws JSONException cuando la información obtenida es errónea
      */
     public static double getCompanyDoublePrice(String symbol) throws JSONException{
         String txt=getCompanyPrice(symbol);
@@ -96,7 +96,7 @@ public class Company {
     /**
      * Obtiene de la API y muestra en pantalla el precio de la acción para un simbolo dado
      * @param symbol es el simbolo del cual se obtiene la información
-     * @throws Exception 
+     * @throws Exception Cuando la conexión es errónea
      */
     public static void ShowCompanyPrice(String symbol) throws Exception{
         String txt=getCompanyPrice(symbol);
@@ -117,7 +117,7 @@ public class Company {
     /**
      * Obtiene de la API, e imprime en la consola datos acerca de los precios de apertura, mayor, menor y cierre de una empresa dada
      * @param symbol es el símbolo que se consulta a la API
-     * @throws Exception 
+     * @throws Exception Cuando la conexión es errónea
      */
     public static void ShowCompanyQuote(String symbol) throws Exception{
         String txt = getCompanyQuote(symbol);
@@ -148,7 +148,7 @@ public class Company {
      * Obtiene, mediante llamada a la API, la URL de un logotipo dado por un simbolo, que será en que se muestre en la pantalla Principal
      * @param symbol es el símbolo a consultar
      * @return la URL completa del logotipo
-     * @throws Exception 
+     * @throws Exception Cuando la conexión es errónea
      */
     public static String getRawCompanyLogo(String symbol)throws Exception{
         String txt = getCompanyLogo(symbol);
@@ -241,7 +241,7 @@ public class Company {
      * Suspende la cotización de una empresa poniendo a cero el campo Cotiza.
      * Si una empresa no cotiza, no la pueden ver los jugadores en el árbol
      * @param symbol es el símbolo de la empresa que se va a suspender de cotización
-     * @throws Exception 
+     * @throws Exception Cuando la consulta de actualización tiene un error
      */
     public static void FillDetailsToNull(String symbol) throws Exception{
         String query = "UPDATE company "
@@ -259,7 +259,7 @@ public class Company {
      * - una que recupera la capitalización (capital de la empresa), y el número de acciones (SharesOutstandings)
      * - una que obtiene el precio de la acción
      * @param symbol es el símbolo que se tiene que recuperar y almacenar.
-     * @throws Exception 
+     * @throws Exception cuando ocurre un error en las operaciones de la BBDD
      */
     public static void FillDetailsFromAPI(String symbol) throws Exception{
         String txt = getCompanyData(symbol);        JSONObject obj = new JSONObject(txt);
@@ -295,7 +295,7 @@ public class Company {
     /**
      * Recupera e imprime en consola los datos de una empresa de la tabla de empresas
      * @param symbol es el símbolo del que se quieere imprimr la información
-     * @throws Exception 
+     * @throws Exception cuando ocurre un error en las consultas a la BBDD
      */
     public static void getCompanyDB(String symbol) throws Exception{
         String query = "SELECT coName, coCEO, coWebsite, coMarket, coSector, coIndustry "
@@ -354,7 +354,7 @@ public class Company {
     /**
      * Obtiene una lista de mercados de las empresas almacenadas en la Base de Datos y la almacena en un vector de Strings
      * @return un vector de String con la lista de los Mercados que hay en la BBDD
-     * @throws Exception 
+     * @throws Exception cuando hay un error en la obtención de la infromación
      */
     public static String[] getMarketsFromDB() throws Exception{
         String[] markets={};

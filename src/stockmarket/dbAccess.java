@@ -71,7 +71,7 @@ public class dbAccess {
     /**
      * Ejecuta una sentencia SQL que no devuelve valores
      * @param query es una sentencia SQL tipo Update, Insert o Delete
-     * @throws Exception 
+     * @throws Exception Cuando hay un error en la ejecución de la consulta
      */
     public static void ExecuteNQ(String query) throws Exception{
         Conectar();
@@ -82,7 +82,7 @@ public class dbAccess {
      * Devuelve un ResultSet como consecuencia de una consulta SELECT a una Base de Datos
      * @param sql es una consulta SQL Select válida
      * @return un ResultSet
-     * @throws Exception 
+     * @throws Exception cuando hay un problema con la consulta a la BBDD
      */
     public static ResultSet exQuery(String sql) throws Exception{
         ResultSet rs;
@@ -96,7 +96,7 @@ public class dbAccess {
      * Devuelve el número de registros de un ResultSet
      * @param rs es un ResultSet
      * @return es el número de registros del RS de entrada
-     * @throws Exception 
+     * @throws Exception cuando hay un error en el resultset de la consulta dada
      */
     public static int length(ResultSet rs) throws Exception{
         int i = 0;
@@ -109,7 +109,7 @@ public class dbAccess {
      * Devuelve un valor resultado de una consulta de conteo con solo un campo
      * @param sql es una consulta SQL
      * @return el número resultado de la consulta
-     * @throws Exception 
+     * @throws Exception cuando hay algún error en la conexión a la BBDD
      */
     public static int exQueryCount(String sql) throws Exception{
         ResultSet rs=null;
@@ -135,7 +135,7 @@ public class dbAccess {
 
     /**
      * Cierra la conexión con la BBDD
-     * @throws SQLException 
+     * @throws SQLException cuando hay un error en la operación de cierre de la conexión a la BBDD
      */    
     public static void stClose() throws SQLException{
         state.close();
@@ -144,7 +144,7 @@ public class dbAccess {
     /**
      * Realiza una consulta SQL, obtiene un ResultSet y lo escribe en la consola
      * Método escrito sólo para propósitos de prueba y comprobación de resultados.
-     * @param sql 
+     * @param sql es la expresión de consulta a la BBDD
      */
     public static void rsConsole(String sql){
         try{
@@ -176,7 +176,7 @@ public class dbAccess {
      * @param tableName es el nombre de la tabla que contiene el campo
      * @param whereCondition es la condición que permite discrimiar registros
      * @return la suma de los elementos dados por la condición de la consulta
-     * @throws Exception 
+     * @throws Exception cuando hay algún problema en el tratamiento del resultset
      */
     public static int DSum(String fieldName, String tableName, String whereCondition) throws Exception{
         System.out.println(fieldName);
@@ -200,8 +200,8 @@ public class dbAccess {
      * @param fieldName es el nombre del campo que se usará para contar
      * @param tableName es el nombre de la tabla
      * @param whereCondition es la condición que permitirá obtener el filtro
-     * @return
-     * @throws Exception 
+     * @return la cuenta de registros que hay en el resultset
+     * @throws Exception  cuando ocurre un problema con el recorrido del ResultSet
      */
     public static int DCount(String fieldName, String tableName, String whereCondition) throws Exception{
         String query = "SELECT Count(" + fieldName + ") "+

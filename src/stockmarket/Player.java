@@ -12,7 +12,7 @@ public class Player {
      * Si el usuario es admin o guest, se calcula el capital del total de jugadores
      * @param jugador es el nombre del jugador
      * @return el capital total del jugador
-     * @throws Exception 
+     * @throws Exception cuando ocurre algún error en el manejo de la base de datos
      */
     public static double CalcularValorTotal(String jugador) throws Exception{
         double valor;
@@ -61,6 +61,7 @@ public class Player {
      * @param name:  un nombre de usuario
      * @param password: la contraseña
      * @return un valor booleano indicando si la operación ha tenido éxito
+     * @throws java.lang.Exception cuando ocurre algún error en la consulta a base de datos
     */
     public static boolean Register(String email, String name, String password) throws Exception{
         boolean salida=false;
@@ -90,7 +91,7 @@ public class Player {
      * @param username es el nombre de usuario
      * @param password es la contraseña
      * @return verdadero si existe la combinación, y falso en caso contrario
-     * @throws Exception 
+     * @throws Exception cuando ocurre algún error en la consulta a la BBDD
      */
     public static boolean LogIn(String username, String password) throws Exception{
         boolean salida=false;
@@ -113,7 +114,7 @@ public class Player {
     /**
      * Devuelve verdadero si es un correo electrónico(si contiene el carácter '@')
      * @param email es el string a comprobar
-     * @return 
+     * @return verdadero si la cadena de entrada contiene @, falso si no lo contiene
      */
     public static boolean isEmail(String email){
         return (email.contains("@"));
@@ -123,7 +124,7 @@ public class Player {
      * Devuelve verdadero si el nombre de usuario está duplicado en la base de datos
      * @param uname nombre de usuario a comprobar
      * @return devuelve verdadero si está repetido
-     * @throws Exception 
+     * @throws Exception  cuando ocurre algún error en la consulta a la BBDD
      */
     public static boolean usrNameDuplicate(String uname) throws Exception{
         String query = "SELECT COUNT(*) AS Contador FROM player WHERE playerName = '" + uname + "';";
@@ -140,7 +141,7 @@ public class Player {
      * Devuelve verdadero si el correo electrónico dado está repetido en la tabla de usuarios
      * @param email correo electrónico a comprobar
      * @return devuelve verdadero si está repetido
-     * @throws Exception 
+     * @throws Exception cuando ocurre algún error en la consulta a la BBDD
      */
     public static boolean emailDuplicated(String email) throws Exception{
         String query = "SELECT COUNT(*) AS Contador FROM player WHERE plEmail = '" + email + "';";
@@ -157,7 +158,7 @@ public class Player {
      * Suma minutos a la cuenta del jugador en la base de datos
      * @param jugador es el jugador que va a acumular los minutos
      * @param cantidad es la cantidad de minutos que hay que añadir (por defecto 1, pero se pone con variable por si se quiere cambiar más adelante)
-     * @throws Exception 
+     * @throws Exception cuando ocurre algun error en la consulta de actualización
      */
     public static void AumentaMinutos(String jugador, int cantidad) throws Exception{
         String query = "UPDATE Player SET TiempoJuego = TiempoJuego + " + cantidad + " WHERE PlayerName = '" + jugador + "';";

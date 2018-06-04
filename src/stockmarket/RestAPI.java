@@ -18,7 +18,7 @@ public class RestAPI {
      * Obtiene el JSON con los datos de la entrada company de la API
      * @deprecated 
      * @param alias es el símbolo de la compañía
-     * @return 
+     * @return un string JSON con el resultado de la consulta a la API
      */
     public static Company aaagetCompanyData(String alias){
         Company mycom = new Company();
@@ -59,7 +59,7 @@ public class RestAPI {
      * Compone una cadena a partir de una consulta a la API
      * @param cadena es la cadena a consultar a la API
      * @return una cadena resultado de consultar a la API
-     * @throws Exception 
+     * @throws Exception cuando hay un error en la consulta a la API
      */
     public static String clienteREST(String cadena) throws Exception {
         URL url = new URL(cadena);

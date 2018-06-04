@@ -16,7 +16,7 @@ public class ClienteREST {
      * Verifica si es posible conectarse a una URL dada antes de efectuar la conexión y obtener una excepción
      * @param direccion es la URL que se quiere probar
      * @return cierto si es posible, falso si la URL no responde o no hay conexión de red
-     * @throws Exception 
+     * @throws Exception Muestra una excepción si no se puede establecer una conexión
      */
     public static boolean checkURL(String direccion) throws Exception{
         try{

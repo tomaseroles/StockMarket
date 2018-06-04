@@ -35,15 +35,15 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     
     /**
      * Obtiene el nombre del jugador en activo
-     * @return 
+     * @return el nombre del jugador
      */
     public static String getJugador() {
         return Jugador;
     }
     
     /**
-     * Establece en jugaor activo y configura la pantalla del juago
-     * @param playerName 
+     * Establece en jugador activo y configura la pantalla del juago
+     * @param playerName es el nombre del jugador
      */
     public static void setJugador(String playerName) {
         PanelPie.setVisible(true);
@@ -78,7 +78,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
         
     /**
      * Establece que ha habido un inicio de sesión exitoso
-     * @param status 
+     * @param status es el valor de la variable loggedIn de la clase
      */
     public static void setLoggedIn(boolean status){
         loggedIn=true;
@@ -87,7 +87,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     
     /**
      * Devuelve el estado de la sesión, abierto(true) o cerrado(false)
-     * @return 
+     * @return el valor de la propiedad loggedIn
      */
     public static boolean getLoggedIn(){
         return loggedIn;
@@ -352,7 +352,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     
     /**
      * Actualiza el contenido de los controles que dependen de la base de datos y/o de la API
-     * @throws Exception 
+     * @throws Exception cuando ocurre un error en las consultas a la BBDD
      */
     public static void UpdateTimerData() throws Exception{
         if(loggedIn){
@@ -422,7 +422,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     
     /**
     * Prepara la información de la tabla Valores con la lista de Valores
-    * @throws java.lang.Exception
+    * @throws java.lang.Exception cuando ocurre algún error en el tratamiento de los datos de la consulta
     */
     public void PreparaValores() throws Exception{
         DefaultTableCellRenderer rightRenderer=new DefaultTableCellRenderer();
@@ -561,7 +561,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
      * Recupera y muestra el detalle de un símbolo escogido de la tabla Valores.
      * El detalle se recupera en dos partes, una que procede de la base de datos, y una imagen de logotipo que se recupera mediante la API
      * @param simbolo es el simbolo del cual hay que recuperar la información
-     * @throws Exception 
+     * @throws Exception cuando ocurre algún error en el tratamiento y recorrido del ResultSet 
      */
     public void MostrarDetalleSimbolo(String simbolo) throws Exception{
         Progreso.setIndeterminate(true);
@@ -598,6 +598,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     * Prepara la información a mostrar en el árbol
     * Para llenar el árbol de empresas se leen los mercados, los sectores y las industrias con consultas y se construye el modelo
     * @param jugador es el nombre del jugador
+    * @throws Exception cuando ocurre algún error en la lectura de la base de datos y/o preparación del árbol 
     */
     public static void PreparaArbol(String jugador) throws Exception{
         Mensaje.setText("Preparando Arbol");
