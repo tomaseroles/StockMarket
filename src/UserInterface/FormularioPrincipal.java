@@ -31,7 +31,8 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     private static String Jugador="";
     private static boolean loggedIn=false;
     public static GameMain.hAccesoAPI hAPI=new GameMain.hAccesoAPI();
-
+    public static String servidor="Local";
+    
     /**
      * Obtiene el nombre del jugador en activo
      * @return 
@@ -39,7 +40,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     public static String getJugador() {
         return Jugador;
     }
-
+    
     /**
      * Establece en jugaor activo y configura la pantalla del juago
      * @param playerName 
@@ -53,6 +54,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
         System.out.println("Se ha establecido el jugador activo a: " + txtPlayer.getText());
         ConfiguraInicio();
         ConfiguraSesion(playerName);
+        cmdCloseSession.setVisible(true);
     }
     
     
@@ -639,8 +641,6 @@ public class FormularioPrincipal extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         timerAPI = new javax.swing.JProgressBar();
         jSeparator1 = new javax.swing.JToolBar.Separator();
-        txtServidor = new javax.swing.JLabel();
-        lstServidor = new javax.swing.JComboBox<>();
         cmdCloseSession = new javax.swing.JButton();
         PanelFichas = new javax.swing.JTabbedPane();
         Estado = new javax.swing.JInternalFrame();
@@ -778,13 +778,6 @@ public class FormularioPrincipal extends javax.swing.JFrame {
         timerAPI.setToolTipText("Tiene una duración de 15 minutos.\nCada vez que se completa el ciclo se recalculan los precios de las acciones.");
         BarraSuperior.add(timerAPI);
         BarraSuperior.add(jSeparator1);
-
-        txtServidor.setText("Origen de datos: ");
-        BarraSuperior.add(txtServidor);
-
-        lstServidor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Local", "Remoto" }));
-        lstServidor.setToolTipText("Elegir el servidor de BBDD a usar para el desarrollo del juego");
-        BarraSuperior.add(lstServidor);
 
         cmdCloseSession.setText("Cerrar sesión");
         cmdCloseSession.setFocusable(false);
@@ -2095,7 +2088,7 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton cmdClasificar;
-    private javax.swing.JButton cmdCloseSession;
+    private static javax.swing.JButton cmdCloseSession;
     private javax.swing.JButton cmdComprar;
     private javax.swing.JButton cmdDeclasificar;
     private javax.swing.JButton cmdVender;
@@ -2156,7 +2149,6 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel lblPrecioActual1;
     private javax.swing.JLabel lblTiempoJuego;
     private static javax.swing.JLabel lblValorTotal;
-    private static javax.swing.JComboBox<String> lstServidor;
     private static javax.swing.JTable playerTransactions;
     private javax.swing.JInternalFrame tabRanking;
     private static javax.swing.JProgressBar timerAPI;
@@ -2165,6 +2157,5 @@ public class FormularioPrincipal extends javax.swing.JFrame {
     private static javax.swing.JFormattedTextField txtFechaAlta;
     private static javax.swing.JLabel txtPlayer;
     private javax.swing.JFormattedTextField txtPrecioActual;
-    private javax.swing.JLabel txtServidor;
     // End of variables declaration//GEN-END:variables
 }
