@@ -18,9 +18,9 @@ public class Player {
         double valor;
         String filtro;
         if(jugador.equals("admin") || jugador.equals("guest"))
-            filtro = "playerName = '"+jugador+"'";
-        else
             filtro="";
+        else
+            filtro = "playerName = '"+jugador+"'";
         valor = dbAccess.DSum("cashMoney+investMoney", "Player", filtro);
         return valor;
     }

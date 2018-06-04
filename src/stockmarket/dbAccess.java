@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
  * @author Tomas
  */
 public class dbAccess {
+    
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final String localDB_URL = "jdbc:mysql://localhost:3307/stockmarket";
     //static final String localDB_URL = "jdbc:mysql://localhost:3307/stockmarket";

@@ -49,7 +49,9 @@ public class Splash extends javax.swing.JFrame {
                 FormularioPrincipal.setJugador(usuario);
                 dispose();
             } else {
+                setVisible(false);
                 Consola.Warning("Usuario y/o contraseña incorrectos","Autenticacion de usuario");
+                setVisible(true);
             }
         } catch(Exception ex){
             Consola.Error("Usuario: " + usuario + " Password: " + password, titulo);
@@ -218,13 +220,15 @@ public class Splash extends javax.swing.JFrame {
         PanelGeneral.setLayout(PanelGeneralLayout);
         PanelGeneralLayout.setHorizontalGroup(
             PanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelGeneralLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(txtCloseWindow))
             .addGroup(PanelGeneralLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGroup(PanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelGeneralLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(txtCloseWindow))
+                    .addGroup(PanelGeneralLayout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 487, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         PanelGeneralLayout.setVerticalGroup(
             PanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -480,8 +484,10 @@ public class Splash extends javax.swing.JFrame {
             // Verificar si se han entrado los datos de nueva alta
             System.out.println("email1: " + (email1.getText().length()==0));
             if((email1.getText().length()==0) || (NombreUsuario.getText().length()==0) || (password1.getPassword().length==0)){
+                setVisible(false);
                 Consola.Warning("Los datos introducidos son incorrectos o falta alguno.", "Nuevo usuario");
                 System.err.println("Error de alta de usuario");
+                setVisible(true);
             } else{
                 boolean altaOK;
                 altaOK=Player.Register(email1.getText(), NombreUsuario.getText(), String.copyValueOf(password1.getPassword()));
@@ -532,7 +538,9 @@ public class Splash extends javax.swing.JFrame {
                         "SET Password = md5('" + String.copyValueOf(password.getPassword()) + "') " +
                         "WHERE PlayerName = '" + txtUsername.getText() + "'";
                 dbAccess.ExecuteNQ(query);
+                setVisible(false);
                 Consola.Info("Se ha cambiado la contraseña", "Cambiar contraseña");
+                setVisible(true);
                 if(CambioPassword.isVisible()){
                     changePassword.doClick();
                     CambioPassword.setVisible(false);
